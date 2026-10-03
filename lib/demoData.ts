@@ -88,14 +88,15 @@ export const DEMO_CLIENT_ECOMMERCE: ClientProfile = {
 
 export const DEMO_CLIENT_MKR: ClientProfile = {
   id: 'client-mkr-audit',
-  name: 'MKR Live Performance Audit',
-  businessName: 'MKR / BMX Performance Marketing',
-  website: 'https://example.com/lp2',
-  productService: 'Performance Creative Campaign Suite',
-  mainOffer: 'Direct Acquisition Campaign LP2',
-  targetAudience: 'Digital Consumers & Scaled Buyers',
+  name: 'Dr. Ankiit Btra',
+  businessName: 'Dr. Ankiit Btra Astro & Numerology',
+  website: 'https://thebatraanumerology.org/master-kundali-fb2/',
+  productService: 'Kundali report',
+  mainOffer: 'Express delivery / special ebooks (Pricing: 499 / exp delivery +149 / ebook - +49)',
+  pricing: '499',
+  targetAudience: '23+ men / women (Performing gender: MALE 70-80% conversions)',
   geography: 'India (Pan-India Metro & Tier 1/2)',
-  usp: 'Multimodal Video + Static Direct Response Funnel',
+  usp: 'Personalised kundali, brand trust',
   painPoints: [
     'Ad fatigue on high-spend CBO winner stacks (MKR-73 & MKR-74 at 0.60x ROAS)',
     'Budget leaks on unconverting variants (MKR_AB_VS-52B: ₹3,274 spent, 0 sales)',
@@ -108,16 +109,39 @@ export const DEMO_CLIENT_MKR: ClientProfile = {
   ],
   customerObjections: [
     'Is the offer compelling enough on mobile landing page?',
-    'Creative wear-out after 2 weeks of CBO budget concentration'
+    'Delay in report delivery causing customer anxiety'
   ],
-  competitors: ['Market leaders in category'],
-  brandTone: 'Punchy, Fast-Paced Direct Response, High-Contrast UGC & Whiteboards',
-  approvedClaims: ['Data-backed creative iteration protocol'],
-  restrictedClaims: ['No unverified claims'],
+  competitors: ['Market leaders in online astrology & kundali reports'],
+  brandTone: 'Punchy, Fast-Paced Direct Response, High-Contrast UGC & Video Consultations',
+  approvedClaims: ['100% Personalised Guidance & Simple Remedies', 'Detailed Life Predictions (Career, Wealth, Relationships)'],
+  restrictedClaims: ['No superstitious guarantees', 'Avoid false timeline commitments'],
   metaConnected: false,
   lastAnalysisDate: '2026-09-28',
-  activeExperimentsCount: 3,
-  currency: 'INR'
+  activeExperimentsCount: 4,
+  currency: 'INR',
+  driveVideoFolderUrl: 'https://drive.google.com/drive/folders/mkr_videos',
+  pastLearnings: [
+    { test: 'Added ebook & express delivery to improve AOV', learning: 'It was successful and increased overall revenue' },
+    { test: 'We started with old pixel with better learning', learning: 'Not successful, as it was over reporting and lot of discrepancy issues' },
+    { test: 'Tested new pixel', learning: 'Discrepancy reduced and reporting got improved' },
+    { test: 'Tested multiple creative styles - celeb clips from YT', learning: 'Not successful & scalable' }
+  ],
+  primaryTexts: [
+    "1. Aapki mehnat ke bawajood career mein progress nahi ho rahi? Ya marriage mein baar-baar delays aa rahe hain? Problem aap mein nahi, shayad aapke grah-nakshatro ke sahi timing mein hai! 🌌\n\nDr. Ankiit Btra ki Master Kundali Report se jaaniye aapke 7th house, Rahu-Ketu ke prabhav, aur simple remedies jo aapki life ki rukaavaton ko door kar sakti hain. ✨\n\n✅ Detailed Life Predictions (Career, Wealth, Relationships)\n✅ Easy-to-understand Remedies\n✅ Personal Guidance\n\n👉 Apni personalized Master Kundali Report aaj hi order karein! 🔮",
+    "2. Career set tha, earning achhi thi... par shaadi 33 ki age tak nahi ho rahi thi. 😔\n\nJab unhone Dr. Ankiit Btra se apni Kundali analyse karwayi, toh pata chala 7th house par Rahu aur Jupiter weak hone ki wajah se delay ho raha tha. Kuch simple remedies follow ki aur 3-4 mahine mein shaadi fix ho gayi! 💍✨\n\nAap bhi apni zindagi ke hidden grah dosh aur unke aasan upaay jaan sakte hain.\n\n📜 Order your Master Kundali Report today and unlock your path to success & happiness! 🙏",
+    "3. Aapka sahi waqt kab aayega? ⏳\n\nJaaniye apne Career, Wealth, Marriage aur Health ke Secret Predictions Dr. Ankiit Btra ki Master Kundali Report se! 🔮\n\n⚡ Easy Remedies | 🎯 Accurate Insights | 📜 Personalized PDF Report\n\n👇 Niche diye gaye link par click karke abhi order karein! 🚀"
+  ],
+  headlines: [
+    'Get life clarity with Master Kundali Report',
+    'Delay In Marriage & Career? Find Remedies Now 💍✨',
+    'Get Your Master Kundali Report Today! 📜⚡'
+  ],
+  descriptions: [
+    'Career, Wealth & Relationship Predictions By Ankiit Btra',
+    '100% Personalised Guidance & Simple Remedies'
+  ],
+  ctas: ['Order Now'],
+  audienceInsights: 'Winner : Open | 23-65+ | All genders | But performing gender here is MALE (70-80% conversions)'
 };
 
 export const INITIAL_CLIENTS: ClientProfile[] = [

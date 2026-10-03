@@ -32,3 +32,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# local database files
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+!data/.gitkeep

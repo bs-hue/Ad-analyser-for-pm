@@ -11,6 +11,23 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        canvas: '#d3dbd3',
+        surface: {
+          DEFAULT: '#fbfcfb',
+          dock: '#141517',
+          card: '#f0f3f0',
+          border: '#e2e7e2',
+        },
+        lime: {
+          DEFAULT: '#e2f976',
+          hover: '#d8f45a',
+          light: '#f4ffd4',
+        },
+        charcoal: {
+          DEFAULT: '#121316',
+          secondary: '#1c1e22',
+          muted: '#626863',
+        },
         brand: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -18,22 +35,10 @@ const config: Config = {
           600: '#16a34a',
           700: '#15803d',
         },
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-        },
-        slate: {
-          850: '#151f32',
-          950: '#0a0f1d',
-        }
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
     },
   },

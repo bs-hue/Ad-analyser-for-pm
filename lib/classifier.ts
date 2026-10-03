@@ -185,23 +185,37 @@ export function classifyAdRecord(
     let rootCauseEvidence = '';
     let testRecommendation = '';
 
-    // Check High CTR + Low CVR (Landing page / Message Match issue)
-    if (ctr >= benchCtr * 1.1 && cvr < 1.2 && lpViews > 200) {
+    const clickToLpLossRate = ad.clicks > 0 && lpViews > 0 ? ((ad.clicks - lpViews) / ad.clicks) * 100 : 0;
+
+    // Check 1: Click-to-Page Drop-off Leak (Technical / Speed issue)
+    if (ad.clicks >= 40 && clickToLpLossRate >= 28) {
       rootCause = 'Landing Page';
-      rootCauseEvidence = `High click-through rate (${ctr.toFixed(2)}%) shows the ad hook generates interest, but extreme post-click drop-off (${cvr.toFixed(2)}% conversion rate) signals a severe landing page disconnect or broken promise.`;
-      testRecommendation = 'Audit landing page message match. Ensure ad hook and headline are repeated above the fold with identical offer terms.';
+      rootCauseEvidence = `Severe click-to-landing-page drop-off (${clickToLpLossRate.toFixed(1)}% loss). Over ${Math.round(ad.clicks - lpViews)} paid clicks bounced before the page rendered. This is a technical mobile speed or pixel latency leak.`;
+      testRecommendation = 'Optimize mobile PageSpeed, eliminate render-blocking fonts/scripts, and verify tracking pixel latency before blaming the ad creative.';
     }
-    // Check Low CTR + High CPC (Hook / Creative failure)
-    else if (ctr < benchCtr * 0.7) {
+    // Check 2: High CTR + Low CVR (Landing page / Message Match issue)
+    else if (ctr >= benchCtr * 1.1 && cvr < 1.2 && (lpViews > 100 || ad.clicks > 150)) {
+      rootCause = 'Landing Page';
+      rootCauseEvidence = `High click-through rate (${ctr.toFixed(2)}%) proves the ad hook captures interest, but near-zero conversion (${cvr.toFixed(2)}% CVR) reveals an acute message mismatch between the ad promise and the landing page hero offer.`;
+      testRecommendation = 'Audit landing page message match. Verbatim repeat the ad headline and pricing above the fold on the landing page.';
+    }
+    // Check 3: Hook-Swap Candidate (Decent Hold/Interest but low CTR / low hook)
+    else if (ctr < benchCtr * 0.75 && (conversions > 0 || spend < benchCpa * 2.5)) {
       rootCause = 'Hook';
-      rootCauseEvidence = `Dismal CTR of ${ctr.toFixed(2)}% (vs. benchmark ${benchCtr.toFixed(2)}%) and high CPC (${currency}${ad.cpc.toFixed(2)}) indicates the first 3 seconds are failing to interrupt the feed or resonate with the target persona.`;
-      testRecommendation = 'Replace the opening 3-second hook with a problem-led pattern interrupt or relatable founder statement.';
+      rootCauseEvidence = `Hook-Swap Candidate: Low link CTR of ${ctr.toFixed(2)}% (vs benchmark ${benchCtr.toFixed(2)}%) indicates viewers scroll past in the first 3 seconds. The core product resonates once viewed, but the opening lacks a scroll-stopping pattern interrupt.`;
+      testRecommendation = 'Execute a "Hook-Swap": Keep the winning body and offer intact, but test 3 new 0-3 second visual pattern interrupts and problem-led opening lines.';
     }
-    // Check High Spend + High CPA (Offer / Copy fatigue)
-    else if (conversions > 0 && cpa > benchCpa * 1.5) {
+    // Check 4: Creative Fatigue (High cumulative spend + rising CPA)
+    else if (conversions > 0 && cpa > benchCpa * 1.4 && spend > benchCpa * 3) {
+      rootCause = 'Creative';
+      rootCauseEvidence = `Creative Fatigue: High spend (${currency}${spend.toFixed(0)}) with elevated CPA of ${currency}${cpa.toFixed(2)} (+${(((cpa - benchCpa) / (benchCpa || 1)) * 100).toFixed(0)}% vs benchmark). Frequency saturation in Advantage+/CBO audience pools is wearing out the creative angle.`;
+      testRecommendation = 'Rotate creative format. If this was a talking head video, launch a high-contrast whiteboard or screen teardown angle to reset auction fatigue.';
+    }
+    // Check 5: Critical Budget Bleed (Zero conversions on high spend)
+    else if (conversions === 0 && spend >= benchCpa * 1.5) {
       rootCause = 'Offer';
-      rootCauseEvidence = `CPA is ${currency}${cpa.toFixed(2)} (+${(((cpa - benchCpa) / (benchCpa || 1)) * 100).toFixed(0)}% above benchmark). The ad attracts traffic but the value proposition is insufficient to convert at target economics.`;
-      testRecommendation = 'Test an objection-handling angle or stronger low-friction lead magnet offer.';
+      rootCauseEvidence = `Immediate Budget Bleed: Consumed ${currency}${spend.toFixed(0)} with 0 conversions (${currency}${benchCpa.toFixed(0)} target CPA). The offer or pricing structure is completely failing to convert traffic.`;
+      testRecommendation = 'Pause ad immediately (P0). Reallocate budget to confirmed scaling winners.';
     } else {
       rootCause = 'Creative';
       rootCauseEvidence = `Total spend of ${currency}${spend.toFixed(0)} produced only ${conversions} conversions (${currency}${cpa.toFixed(2)} CPA vs benchmark ${currency}${benchCpa.toFixed(2)}).`;

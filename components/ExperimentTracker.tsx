@@ -124,26 +124,31 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-5">
+    <div className="bg-white border border-[#eef0ec] rounded-[32px] p-7 shadow-2xs space-y-6">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-slate-900">Creative & Funnel Experiment Tracker</h3>
-            <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
-              {experiments.length} Total Tests
-            </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#f4f5f2]">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
+            <FlaskConical className="w-5 h-5 text-[#e2f976]" />
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Track structured hypotheses, variables, target metrics, and learnings over time.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-[#141517]">Creative & Funnel Experiment Tracker</h3>
+              <span className="text-xs font-bold bg-[#141517] text-[#e2f976] px-3 py-1 rounded-full">
+                {experiments.length} Total Tests
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Track structured hypotheses, variables, target metrics, and learnings over time.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2.5 text-xs">
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-slate-50 border border-slate-200 text-slate-700 rounded-md px-2.5 py-1.5 font-medium focus:ring-1 focus:ring-blue-500 cursor-pointer"
+            className="bg-[#fbfcfb] border border-[#eef0ec] text-slate-800 rounded-full px-4 py-2 font-bold focus:outline-none cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="Running">Running</option>
@@ -155,28 +160,28 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
 
           <button
             onClick={() => setShowNewModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-xs transition shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full font-black text-xs transition shadow-sm"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4 text-[#e2f976]" />
             <span>New Experiment</span>
           </button>
         </div>
       </div>
 
       {/* Experiment List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filteredExperiments.map((exp) => (
           <div
             key={exp.id}
-            className="border border-slate-200 rounded-xl p-4 bg-slate-50/40 hover:bg-slate-50 transition space-y-3 text-xs"
+            className="border border-[#eef0ec] rounded-[24px] p-5 bg-[#fbfcfb] hover:bg-white transition space-y-3.5 text-xs shadow-2xs"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <span className="text-xs font-bold text-slate-900">{exp.title}</span>
-                <span className="text-[10px] font-semibold bg-slate-200 text-slate-700 px-2 py-0.5 rounded">
+                <span className="text-sm font-extrabold text-[#141517]">{exp.title}</span>
+                <span className="text-[10px] font-bold bg-[#f4f5f2] text-slate-700 px-3 py-1 rounded-full">
                   Variable: {exp.variable}
                 </span>
-                <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
+                <span className="text-[10px] font-black bg-[#e2f976]/30 text-[#141517] px-3 py-1 rounded-full border border-[#e2f976]">
                   KPI: {exp.kpi}
                 </span>
               </div>
@@ -187,7 +192,7 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
                 <select
                   value={exp.status}
                   onChange={(e) => handleStatusChange(exp.id, e.target.value as any)}
-                  className="bg-white border border-slate-300 text-slate-800 text-[11px] font-semibold rounded px-2 py-1 focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                  className="bg-white border border-[#eef0ec] text-slate-800 text-[11px] font-bold rounded-full px-3 py-1 focus:outline-none cursor-pointer"
                 >
                   <option value="Planned">Set: Planned</option>
                   <option value="Running">Set: Running</option>
@@ -200,9 +205,9 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
             </div>
 
             {/* Hypothesis */}
-            <div className="bg-white p-3 rounded-lg border border-slate-200 space-y-1">
-              <span className="font-bold text-slate-900 block text-[11px] uppercase">Hypothesis:</span>
-              <p className="text-slate-700 italic">"{exp.hypothesis}"</p>
+            <div className="bg-white p-3.5 rounded-2xl border border-[#eef0ec] space-y-1">
+              <span className="font-extrabold text-[#141517] block text-[10px] uppercase tracking-wider">Hypothesis:</span>
+              <p className="text-slate-700 italic leading-relaxed">"{exp.hypothesis}"</p>
             </div>
 
             {/* Baseline vs Target */}
@@ -214,7 +219,7 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
                 <strong>Target:</strong> {exp.targetMetric}
               </span>
               {exp.currentResult && (
-                <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="text-emerald-800 font-extrabold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                   Current Result: {exp.currentResult}
                 </span>
               )}
@@ -223,9 +228,9 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
 
             {/* Learnings Log */}
             {exp.learnings && (
-              <div className="bg-blue-50/50 border border-blue-100 p-2.5 rounded-lg text-[11px] text-slate-700">
-                <span className="font-bold text-blue-900 block mb-0.5">Verified Learnings:</span>
-                <p>{exp.learnings}</p>
+              <div className="bg-[#e2f976]/15 border border-[#e2f976] p-3 rounded-2xl text-[11px] text-[#141517]">
+                <span className="font-extrabold block mb-0.5">Verified Learnings:</span>
+                <p className="leading-relaxed">{exp.learnings}</p>
               </div>
             )}
           </div>
@@ -234,50 +239,55 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
 
       {/* New Experiment Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-2xl max-w-lg w-full mx-auto overflow-hidden">
-            <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-              <h4 className="font-bold text-sm text-slate-900">Launch New Growth Experiment</h4>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+          <div className="bg-white rounded-[32px] border border-[#eef0ec] shadow-2xl max-w-lg w-full mx-auto overflow-hidden">
+            <div className="bg-white border-b border-[#f4f5f2] px-7 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
+                  <FlaskConical className="w-5 h-5 text-[#e2f976]" />
+                </div>
+                <h4 className="font-extrabold text-base text-[#141517]">Launch New Growth Experiment</h4>
+              </div>
               <button
                 onClick={() => setShowNewModal(false)}
-                className="p-1 rounded text-slate-400 hover:text-slate-700"
+                className="w-9 h-9 rounded-full bg-[#f4f5f2] hover:bg-[#e8eae4] text-slate-700 flex items-center justify-center transition"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateExperiment} className="p-6 space-y-4 text-xs">
+            <form onSubmit={handleCreateExperiment} className="p-7 space-y-4 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Experiment Title</label>
+                <label className="font-bold text-slate-700 block mb-1.5">Experiment Title</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Problem Hook vs Contrarian Math Hook"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-800"
+                  className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Hypothesis</label>
+                <label className="font-bold text-slate-700 block mb-1.5">Hypothesis</label>
                 <textarea
                   rows={3}
                   required
                   placeholder="If we [change variable], we will achieve [target metric] because [reason]..."
                   value={newHypothesis}
                   onChange={(e) => setNewHypothesis(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-800"
+                  className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Variable</label>
+                  <label className="font-bold text-slate-700 block mb-1.5">Variable</label>
                   <select
                     value={newVariable}
                     onChange={(e) => setNewVariable(e.target.value as any)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-800"
+                    className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
                   >
                     <option value="Hook">Hook (0-3s)</option>
                     <option value="Visual Format">Visual Format</option>
@@ -290,11 +300,11 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Primary KPI</label>
+                  <label className="font-bold text-slate-700 block mb-1.5">Primary KPI</label>
                   <select
                     value={newKpi}
                     onChange={(e) => setNewKpi(e.target.value as any)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-800"
+                    className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
                   >
                     <option value="CPL">CPL (Cost Per Lead)</option>
                     <option value="CPA">CPA (Cost Per Result)</option>
@@ -307,36 +317,36 @@ export const ExperimentTracker: React.FC<ExperimentTrackerProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Baseline Metric</label>
+                  <label className="font-bold text-slate-700 block mb-1.5">Baseline Metric</label>
                   <input
                     type="text"
                     value={newBaseline}
                     onChange={(e) => setNewBaseline(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-800"
+                    className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Target Goal</label>
+                  <label className="font-bold text-slate-700 block mb-1.5">Target Goal</label>
                   <input
                     type="text"
                     value={newTarget}
                     onChange={(e) => setNewTarget(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-md p-2 text-slate-800"
+                    className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
                   />
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-3 flex justify-end gap-2.5 border-t border-[#f4f5f2]">
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-3.5 py-1.5 border border-slate-300 rounded-md text-slate-600 font-semibold"
+                  className="px-5 py-2.5 bg-[#f4f5f2] hover:bg-[#e8eae4] text-slate-800 rounded-full font-bold transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold"
+                  className="px-6 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full font-black shadow-sm transition"
                 >
                   Create Experiment
                 </button>

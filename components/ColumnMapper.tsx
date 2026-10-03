@@ -60,15 +60,15 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-5xl w-full mx-auto overflow-hidden text-slate-800">
+    <div className="bg-white rounded-[32px] border border-[#eef0ec] shadow-2xl max-w-5xl w-full mx-auto overflow-hidden text-slate-800">
       {/* Modal Header */}
-      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-            <Layers className="w-4 h-4" />
+      <div className="bg-white border-b border-[#f4f5f2] px-7 py-5 flex items-center justify-between">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
+            <Layers className="w-5 h-5 text-[#e2f976]" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900">Map Columns & Validate Performance Dataset</h2>
+            <h2 className="text-base font-extrabold text-[#141517]">Map Columns & Validate Performance Dataset</h2>
             <p className="text-xs text-slate-500">
               Verify that uploaded sheet headers match the system's normalized performance schema.
             </p>
@@ -220,10 +220,10 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
       </div>
 
       {/* Modal Actions */}
-      <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-t border-[#f4f5f2] px-7 py-4 flex items-center justify-between">
         <button
           onClick={onCancel}
-          className="px-4 py-2 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+          className="px-5 py-2.5 bg-[#f4f5f2] hover:bg-[#e8eae4] rounded-full text-xs font-bold text-slate-800 transition"
         >
           Cancel
         </button>
@@ -231,7 +231,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
         <button
           onClick={() => onConfirmMapping(previewRecords)}
           disabled={!validationReport.canProceed}
-          className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-semibold shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-6 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-xs font-black shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span>Confirm & Continue to Analysis</span>
           <ArrowRight className="w-3.5 h-3.5" />

@@ -44,6 +44,9 @@ export interface UnifiedAdRecord {
   creativeUrl?: string;
   driveUrl?: string;
   landingPageUrl?: string;
+  localMediaUrl?: string;
+  localMediaType?: 'image' | 'video';
+  localFileName?: string;
   
   // Classification & Diagnostics calculated
   tier?: PerformanceTier;
@@ -78,6 +81,7 @@ export interface CreativeIntelligence {
   headlineClarityScore: number; // 1-10
   driveUrlStatus: 'public_accessible' | 'permission_required' | 'not_provided';
   thumbnailUrl?: string;
+  recommendedHookSwaps?: string[];
 }
 
 export interface LandingPageAnalysis {
@@ -175,6 +179,7 @@ export interface ClientProfile {
   website: string;
   productService: string;
   mainOffer: string;
+  pricing?: string;
   targetAudience: string;
   geography: string;
   usp: string;
@@ -187,9 +192,36 @@ export interface ClientProfile {
   restrictedClaims: string[];
   metaConnected: boolean;
   metaAccountId?: string;
+  metaAccessToken?: string;
+  metaPixelId?: string;
   lastAnalysisDate: string;
   activeExperimentsCount: number;
   currency: string;
+  targetCpa?: number;
+  driveCreativeFolderUrl?: string;
+  driveVideoFolderUrl?: string;
+  pastLearnings?: { test: string; learning?: string }[];
+  primaryTexts?: string[];
+  headlines?: string[];
+  descriptions?: string[];
+  ctas?: string[];
+  audienceInsights?: string;
+  periodDatasets?: Record<string, UnifiedAdRecord[]>;
+}
+
+export interface AgencyAuditPeriod {
+  label: string;
+  sheetName: string;
+  records: UnifiedAdRecord[];
+}
+
+export interface AgencyAuditWorkbookResult {
+  isAgencyWorkbook: boolean;
+  clientProfile?: Partial<ClientProfile>;
+  pastLearnings?: { test: string; learning?: string }[];
+  periods: AgencyAuditPeriod[];
+  activePeriodRecords: UnifiedAdRecord[];
+  activePeriodLabel: string;
 }
 
 export interface HistoricalAnalysisRun {

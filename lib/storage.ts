@@ -45,6 +45,7 @@ export function saveClientProfile(client: ClientProfile): void {
     clients.push(client);
   }
   localStorage.setItem(CLIENTS_KEY, JSON.stringify(clients));
+  syncClientToMySql(client);
 }
 
 export function getClientById(clientId: string): ClientProfile | undefined {
@@ -131,3 +132,54 @@ export function addClientHistoryRun(clientId: string, run: HistoricalAnalysisRun
   const updated = [run, ...history.filter((h) => h.id !== run.id)];
   localStorage.setItem(HISTORY_PREFIX + clientId, JSON.stringify(updated));
 }
+
+const PERIODS_PREFIX = 'pmi_periods_';
+
+export function saveClientPeriods(clientId: string, periodMap: Record<string, UnifiedAdRecord[]>): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(PERIODS_PREFIX + clientId, JSON.stringify(periodMap));
+  
+  // Background sync to MySQL
+  Object.entries(periodMap).forEach(([period, records]) => {
+    syncPeriodRecordsToMySql(clientId, period, records);
+  });
+}
+
+export function getClientPeriods(clientId: string): Record<string, UnifiedAdRecord[]> | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(PERIODS_PREFIX + clientId);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Background sync helpers (safe and non-blocking)
+export async function syncClientToMySql(client: ClientProfile): Promise<void> {
+  if (typeof window === 'undefined') return;
+  try {
+    fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_client', client })
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+export async function syncPeriodRecordsToMySql(
+  clientId: string,
+  periodLabel: string,
+  records: UnifiedAdRecord[]
+): Promise<void> {
+  if (typeof window === 'undefined') return;
+  try {
+    fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_records', clientId, periodLabel, records })
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+

@@ -36,12 +36,12 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 py-6 text-slate-800">
+    <div className="max-w-5xl mx-auto space-y-6 py-6 text-slate-800">
       {/* Top Action Toolbar (hidden on print) */}
-      <div className="no-print bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
+      <div className="no-print bg-white border border-[#eef0ec] rounded-[32px] p-4 shadow-2xs flex items-center justify-between">
         <button
           onClick={onBackToWorkspace}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#f4f5f2] hover:bg-[#e8eae4] rounded-full text-xs font-bold text-slate-800 transition"
         >
           <ArrowRight className="w-3.5 h-3.5 rotate-180" />
           <span>Back to Workspace</span>
@@ -50,46 +50,46 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold shadow-sm transition"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-xs font-black shadow-sm transition"
           >
-            <Printer className="w-3.5 h-3.5" />
+            <Printer className="w-4 h-4 text-[#e2f976]" />
             <span>Print / Save as PDF</span>
           </button>
         </div>
       </div>
 
       {/* Report Header Card */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#f4f5f2] pb-6">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 block mb-1">
+            <span className="text-[10px] font-black uppercase tracking-widest bg-[#141517] text-[#e2f976] px-3 py-1 rounded-full inline-block mb-2">
               Performance Marketing Intelligence Report
             </span>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl font-extrabold text-[#141517] tracking-tight">
               {client.name} — Comprehensive Funnel & Creative Diagnosis
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1.5">
               {client.businessName} • Period: {diagnosis.dateRange} • Generated: {new Date(diagnosis.generatedAt).toLocaleDateString()}
             </p>
           </div>
 
           <div className="text-right">
             <span className="text-xs text-slate-400 block font-semibold">Engine</span>
-            <span className="text-sm font-bold text-slate-900">Claude Strategic Reasoning</span>
+            <span className="text-sm font-extrabold text-[#141517]">Multimodal Diagnostic Reasoning</span>
           </div>
         </div>
 
         {/* 1. EXECUTIVE SUMMARY */}
-        <div className="space-y-3 pt-2">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">1</span>
+        <div className="space-y-4 pt-2">
+          <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">1</span>
             Executive Summary
           </h2>
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-2 text-xs leading-relaxed text-slate-700">
+          <div className="bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-6 space-y-2.5 text-xs leading-relaxed text-slate-700">
             {diagnosis.executiveSummary.map((point, idx) => (
-              <div key={idx} className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                <span className="font-medium">{point}</span>
+              <div key={idx} className="flex items-start gap-3">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <span className="font-semibold text-slate-800">{point}</span>
               </div>
             ))}
           </div>
@@ -97,107 +97,107 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
       </div>
 
       {/* 2. ACCOUNT PERFORMANCE */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">2</span>
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">2</span>
           Account Performance Summary
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Total Spend</span>
-            <span className="text-lg font-bold text-slate-900">{currencySymbol}{diagnosis.summary.totalSpend.toLocaleString()}</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 text-xs">
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Total Spend</span>
+            <span className="text-lg font-black text-[#141517]">{currencySymbol}{diagnosis.summary.totalSpend.toLocaleString()}</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Total Revenue</span>
-            <span className="text-lg font-bold text-slate-900">{currencySymbol}{diagnosis.summary.totalRevenue.toLocaleString()}</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Total Revenue</span>
+            <span className="text-lg font-black text-[#141517]">{currencySymbol}{diagnosis.summary.totalRevenue.toLocaleString()}</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Blended ROAS</span>
-            <span className="text-lg font-extrabold text-emerald-700">{diagnosis.summary.blendedRoas.toFixed(2)}x</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Blended ROAS</span>
+            <span className="text-lg font-black text-emerald-700">{diagnosis.summary.blendedRoas.toFixed(2)}x</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Average CPA / CPL</span>
-            <span className="text-lg font-bold text-slate-900">{currencySymbol}{diagnosis.summary.averageCpa.toFixed(2)}</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Average CPA / CPL</span>
+            <span className="text-lg font-black text-[#141517]">{currencySymbol}{diagnosis.summary.averageCpa.toFixed(2)}</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Total Conversions</span>
-            <span className="text-lg font-bold text-slate-900">{diagnosis.summary.totalPurchases || diagnosis.summary.totalLeads}</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Total Conversions</span>
+            <span className="text-lg font-black text-[#141517]">{diagnosis.summary.totalPurchases || diagnosis.summary.totalLeads}</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Link CTR</span>
-            <span className="text-lg font-bold text-slate-900">{diagnosis.summary.averageCtr.toFixed(2)}%</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Link CTR</span>
+            <span className="text-lg font-black text-[#141517]">{diagnosis.summary.averageCtr.toFixed(2)}%</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Average CPC</span>
-            <span className="text-lg font-bold text-slate-900">{currencySymbol}{diagnosis.summary.averageCpc.toFixed(2)}</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Average CPC</span>
+            <span className="text-lg font-black text-[#141517]">{currencySymbol}{diagnosis.summary.averageCpc.toFixed(2)}</span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <span className="text-slate-500 block text-[11px]">Active Winners</span>
-            <span className="text-lg font-bold text-emerald-700">{diagnosis.summary.strongPerformersCount} Ads</span>
+          <div className="bg-[#fbfcfb] p-4 rounded-2xl border border-[#eef0ec]">
+            <span className="text-slate-400 block text-[10px] font-bold uppercase">Active Winners</span>
+            <span className="text-lg font-black text-emerald-700">{diagnosis.summary.strongPerformersCount} Ads</span>
           </div>
         </div>
       </div>
 
       {/* 3. WHAT IS WORKING */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">3</span>
           What Is Working (Winning Patterns)
         </h2>
 
         <div className="space-y-4">
           {diagnosis.winningPatterns.map((pat) => (
-            <div key={pat.id} className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2 text-xs">
+            <div key={pat.id} className="bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-5 space-y-2 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 text-sm">{pat.title}</span>
-                <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="font-extrabold text-[#141517] text-sm">{pat.title}</span>
+                <span className="font-black text-[#141517] bg-[#e2f976] px-3 py-1 rounded-full text-[11px]">
                   Avg ROAS: {pat.averageRoas.toFixed(2)}x | Avg CPA: {currencySymbol}{pat.averageCpa.toFixed(2)}
                 </span>
               </div>
-              <p className="text-slate-700">{pat.patternDescription}</p>
+              <p className="text-slate-700 leading-relaxed">{pat.patternDescription}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* 4. WHAT IS NOT WORKING */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">4</span>
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">4</span>
           What Is Not Working (Underperforming Ads)
         </h2>
 
         <div className="space-y-3">
           {diagnosis.underperformingDiagnosis.map((item) => (
-            <div key={item.adId} className="border border-slate-200 rounded-lg p-3 text-xs space-y-1">
+            <div key={item.adId} className="border border-[#eef0ec] bg-[#fbfcfb] rounded-2xl p-4 text-xs space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900">{item.adName}</span>
-                <span className="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                <span className="font-extrabold text-[#141517]">{item.adName}</span>
+                <span className="text-rose-800 font-bold bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
                   Issue: {item.possibleIssue} (CPA: {currencySymbol}{item.cpa.toFixed(2)})
                 </span>
               </div>
-              <p className="text-slate-600">{item.evidence}</p>
+              <p className="text-slate-600 leading-relaxed">{item.evidence}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* 5. FUNNEL DIAGNOSIS */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">5</span>
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">5</span>
           Full Funnel Diagnosis
         </h2>
 
-        <div className="space-y-2 text-xs">
+        <div className="space-y-2.5 text-xs">
           {diagnosis.funnelStages.map((stg) => (
-            <div key={stg.name} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <div key={stg.name} className="flex items-center justify-between p-4 bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl">
               <div>
-                <span className="font-bold text-slate-900">{stg.name}</span>
-                <p className="text-slate-600 text-[11px]">{stg.diagnosis}</p>
+                <span className="font-extrabold text-[#141517]">{stg.name}</span>
+                <p className="text-slate-600 text-[11px] mt-0.5">{stg.diagnosis}</p>
               </div>
-              <span className={`font-bold px-2 py-0.5 rounded text-[11px] ${stg.status === 'Healthy' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+              <span className={`font-black px-3 py-1 rounded-full text-[11px] ${stg.status === 'Healthy' ? 'bg-[#e2f976]/30 text-[#141517] border border-[#e2f976]' : 'bg-amber-100 text-amber-900 border border-amber-300'}`}>
                 {stg.status}
               </span>
             </div>
@@ -206,18 +206,18 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
       </div>
 
       {/* 6. WHAT TO STOP / AVOID */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">6</span>
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">6</span>
           What To Stop / Patterns To Avoid
         </h2>
 
-        <div className="space-y-3 text-xs">
+        <div className="space-y-3.5 text-xs">
           {diagnosis.patternsToAvoid.map((av) => (
-            <div key={av.id} className="bg-rose-50/40 border border-rose-200 rounded-lg p-4 space-y-1.5">
-              <span className="font-bold text-rose-900">{av.patternName}</span>
-              <p className="text-slate-700">{av.evidenceExplanation}</p>
-              <p className="text-rose-800 font-semibold pt-1 border-t border-rose-200/60">
+            <div key={av.id} className="bg-rose-50/20 border border-rose-200/80 rounded-2xl p-5 space-y-2">
+              <span className="font-extrabold text-rose-950 text-sm">{av.patternName}</span>
+              <p className="text-slate-700 leading-relaxed">{av.evidenceExplanation}</p>
+              <p className="text-rose-900 font-bold pt-2 border-t border-rose-200/60">
                 Rule: {av.actionableAvoidRule}
               </p>
             </div>
@@ -226,22 +226,22 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
       </div>
 
       {/* 7. NEXT 7 DAYS ACTION PLAN */}
-      <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-4">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">7</span>
+      <div className="bg-white border border-[#eef0ec] rounded-[32px] p-8 shadow-2xs space-y-5">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#141517] flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2f976] text-[11px] font-black flex items-center justify-center">7</span>
           Next 7-Day Prioritized Action Plan
         </h2>
 
-        <div className="space-y-3 text-xs">
+        <div className="space-y-3.5 text-xs">
           {diagnosis.next7DaysPlan.map((act) => (
-            <div key={act.id} className="border border-slate-200 rounded-lg p-4 space-y-1 bg-slate-50/50">
+            <div key={act.id} className="border border-[#eef0ec] rounded-2xl p-5 space-y-2 bg-[#fbfcfb]">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 text-xs">{act.title}</span>
-                <span className="font-bold text-blue-700 text-[10px] bg-blue-50 px-2 py-0.5 rounded">
+                <span className="font-extrabold text-[#141517] text-sm">{act.title}</span>
+                <span className="font-black text-[#141517] text-[10px] bg-[#e2f976] px-3 py-1 rounded-full">
                   {act.priority}
                 </span>
               </div>
-              <p className="text-slate-700"><strong>Action:</strong> {act.action}</p>
+              <p className="text-slate-800"><strong>Action:</strong> {act.action}</p>
               <p className="text-slate-600 italic"><strong>Why & KPI:</strong> {act.why} (Target: {act.kpi})</p>
             </div>
           ))}

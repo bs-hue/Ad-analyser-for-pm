@@ -68,113 +68,121 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
-      {/* Top Navbar */}
-      <header className="bg-white border-b border-slate-200 px-8 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen w-full bg-[#fbfcfb] text-[#121316] font-sans p-6 sm:p-10 lg:p-12 flex justify-center items-start">
+      {/* Main Container */}
+      <div className="w-full max-w-7xl bg-white rounded-[32px] border border-neutral-200/80 shadow-sm overflow-hidden p-6 sm:p-10 space-y-8">
+        {/* Top Header Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ecefec] pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20">
-              <Layers className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-sm">
+              <Sparkles className="w-5 h-5 text-[#e2f976]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 text-lg tracking-tight">Performance Marketing Intelligence</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">
-                  SaaS Platform
+                <span className="font-extrabold text-[#121316] text-lg tracking-tight font-display">Antigravity Intelligence</span>
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#e2f976] text-[#121316] shadow-sm">
+                  Agency OS
                 </span>
               </div>
-              <p className="text-xs text-slate-500">Multimodal Funnel & Creative Diagnostic Agent for Media Buyers</p>
+              <p className="text-xs text-slate-500 font-medium">Multimodal Funnel & Creative Diagnostic Agent for Media Buyers</p>
             </div>
           </div>
 
           <button
             onClick={() => setShowAddClientModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#121316] hover:bg-black text-white rounded-full text-xs font-bold shadow-sm transition"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Client</span>
           </button>
         </div>
-      </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-1 space-y-8">
-        {/* Hero Section */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+        {/* Hero Section with Inline Pill Badges */}
+        <div className="bg-[#f0f3f0] border border-[#e2e7e2] rounded-[30px] p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
           <div className="space-y-2 max-w-2xl">
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600">Client Workspaces</span>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Analyze Funnels, Creatives & ROAS With Claude Engine
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#121316] tracking-tight font-display flex flex-wrap items-center gap-2">
+              <span>Managing</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-300/80 rounded-full text-xs font-semibold text-slate-800 shadow-sm">
+                <Building2 className="w-3.5 h-3.5 text-slate-600" />
+                Your Clients
+              </span>
+              <span>and</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e2f976] text-[#121316] rounded-full text-xs font-extrabold shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-[#121316]" />
+                Creative Workflows
+              </span>
             </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Connect Meta Ads MCP or upload raw performance spreadsheets. The AI cross-examines ad metrics, Google Drive video hooks, landing page promises, and 60-day historical memory before formulating your prioritized 7-day action plan.
+            <p className="text-xs text-slate-600 leading-relaxed font-medium">
+              Upload raw agency multi-tab Excel workbooks or connect Meta Ads. The agent deterministically audits unit economics, downloads public Drive video ads to 720p, runs multimodal vision teardowns, and produces prioritized 7-day action playbooks.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 p-4 rounded-xl text-xs flex-shrink-0">
+          <div className="flex items-center gap-4 bg-white border border-[#e2e7e2] p-4 rounded-2xl text-xs flex-shrink-0 shadow-sm">
             <div>
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Active Workspaces</span>
-              <span className="text-xl font-extrabold text-slate-900">{clients.length} Clients</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Active Workspaces</span>
+              <span className="text-2xl font-extrabold text-[#121316] font-display">{clients.length} Clients</span>
             </div>
             <div className="pl-4 border-l border-slate-200">
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Reasoning Core</span>
-              <span className="text-sm font-bold text-blue-700">Claude 3.5 Sonnet</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Reasoning Core</span>
+              <span className="text-xs font-extrabold text-[#121316] bg-[#e2f976] px-2 py-0.5 rounded-full inline-block mt-0.5">
+                Gemini 2.5 Flash
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Client Cards Grid */}
+        {/* Client Workspaces Cards Grid */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700">Select Client Workspace</h2>
-            <span className="text-xs text-slate-500">Benchmark demo data included</span>
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Select Client Workspace</h2>
+            <span className="text-xs text-slate-500 font-medium">Multi-tab agency audits supported</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {clients.map((c) => (
               <div
                 key={c.id}
-                className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-blue-300 transition flex flex-col justify-between space-y-5"
+                className="bg-white border border-[#e2e7e2] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between space-y-5 group"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-sm">
+                    <div className="w-11 h-11 rounded-2xl bg-[#f0f3f0] group-hover:bg-[#e2f976] text-[#121316] flex items-center justify-center font-extrabold text-sm transition">
                       {c.name.substring(0, 2).toUpperCase()}
                     </div>
                     {c.metaConnected ? (
-                      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Meta Connected
                       </span>
                     ) : (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                        Manual / CSV Mode
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#f0f3f0] text-slate-700 border border-slate-200">
+                        Excel / Agency Mode
                       </span>
                     )}
                   </div>
 
-                  <h3 className="font-extrabold text-base text-slate-900 tracking-tight">{c.name}</h3>
-                  <p className="text-xs font-medium text-slate-500 mb-2">{c.businessName}</p>
+                  <h3 className="font-extrabold text-lg text-[#121316] tracking-tight font-display">{c.name}</h3>
+                  <p className="text-xs font-medium text-slate-500 mb-1">{c.businessName}</p>
                   <p className="text-xs text-slate-600 line-clamp-2">{c.productService}</p>
                 </div>
 
                 {/* Metadata & CTA */}
                 <div className="pt-4 border-t border-slate-100 space-y-3 text-xs">
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500">
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-medium">
                     <div>
-                      <span className="block text-slate-400">Last Analysis:</span>
-                      <span className="font-semibold text-slate-800">{c.lastAnalysisDate || '18 Sep 2026'}</span>
+                      <span className="block text-slate-400">Offer / Pricing:</span>
+                      <span className="font-bold text-slate-900">{c.pricing || c.mainOffer || '₹499'}</span>
                     </div>
                     <div>
-                      <span className="block text-slate-400">Active Experiments:</span>
-                      <span className="font-semibold text-blue-700">{c.activeExperimentsCount} Tests</span>
+                      <span className="block text-slate-400">Past Tests:</span>
+                      <span className="font-bold text-slate-900">{c.pastLearnings?.length || 9} Learnings</span>
                     </div>
                   </div>
 
                   <Link
                     href={`/client/${c.id}`}
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
+                    className="w-full py-2.5 bg-[#121316] hover:bg-black text-white font-bold rounded-full text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
                   >
-                    <span>Open Client Workspace</span>
+                    <span>Open Workspace</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -182,12 +190,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 px-8 text-center text-xs text-slate-400">
-        Performance Marketing Intelligence Platform • Built for High-Growth Media Buyers & Performance Agencies
-      </footer>
+      </div>
 
       {/* Add Client Modal */}
       {showAddClientModal && (
