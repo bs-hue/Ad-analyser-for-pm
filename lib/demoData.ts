@@ -1,4 +1,4 @@
-import { ClientProfile, UnifiedAdRecord, CreativeIntelligence, LandingPageAnalysis, ExperimentItem, HistoricalAnalysisRun } from './types';
+import { ClientProfile, UnifiedAdRecord, CreativeIntelligence, LandingPageAnalysis, ExperimentItem, HistoricalAnalysisRun, ClarityMetrics } from './types';
 
 export const DEMO_CLIENT_ANKIT: ClientProfile = {
   id: 'client-ankit-batra',
@@ -48,6 +48,8 @@ export const DEMO_CLIENT_ANKIT: ClientProfile = {
   ],
   metaConnected: true,
   metaAccountId: 'act_49201948201',
+  clarityConnected: true,
+  clarityProjectId: 'ms-clarity-ankit-funnel',
   lastAnalysisDate: '2026-09-18',
   activeExperimentsCount: 4,
   currency: 'INR'
@@ -1621,3 +1623,57 @@ export const DEMO_AD_RECORDS_MKR: UnifiedAdRecord[] = [
     tierScore: 40
   }
 ];
+
+export const DEMO_CLARITY_METRICS: ClarityMetrics = {
+  projectId: 'ms-clarity-ankit-funnel',
+  connected: true,
+  totalSessions: 14850,
+  activeUsers: 11240,
+  rageClicksPercent: 4.8,
+  deadClicksPercent: 8.4,
+  excessiveScrollPercent: 21.6,
+  quickBacksPercent: 13.8,
+  averageScrollDepth: 56.4,
+  deviceSplit: {
+    mobilePercent: 78,
+    desktopPercent: 20,
+    tabletPercent: 2
+  },
+  topFrictionElements: [
+    {
+      element: 'button#claim-free-audit-mobile',
+      issue: 'Rage Click',
+      occurrences: 412,
+      description: 'Mobile users tapping "Claim Blueprint" repeatedly while modal iframe is still loading.'
+    },
+    {
+      element: 'div.pricing-tier-card-recommended',
+      issue: 'Dead Click',
+      occurrences: 684,
+      description: 'Users clicking unlinked "₹499 Discovery Kit" badge expecting an immediate checkout trigger.'
+    },
+    {
+      element: 'form#step-2-qualification',
+      issue: 'Form Abandonment',
+      occurrences: 529,
+      description: '38% drop-off on question "Current Monthly Ad Spend" due to 6 mandatory dropdown options.'
+    },
+    {
+      element: 'section#testimonials-carousel',
+      issue: 'High Drop-Off',
+      occurrences: 310,
+      description: 'Users scrolling past video testimonials quickly without playing due to missing autoloop preview.'
+    }
+  ],
+  pageDropOffs: [
+    { url: '/growth-accelerator', dropOffRate: 46.2, avgTimeSeconds: 42 },
+    { url: '/growth-accelerator#pricing', dropOffRate: 28.5, avgTimeSeconds: 78 },
+    { url: '/checkout/step-1', dropOffRate: 18.2, avgTimeSeconds: 110 }
+  ],
+  aiCroInsights: [
+    'Rage clicks on mobile CTA indicate form loading latency — pre-render the booking modal to prevent lost high-intent buyers.',
+    'Dead clicks on the pricing badge show strong purchase intent without an actionable link — convert the entire card into an instant checkout trigger.',
+    'Mobile scroll depth drops sharply at 60% — move social proof and trust seals above the fold to capture the 44% of mobile visitors who never scroll down.',
+    'Form abandonment on Step 2 suggests reducing required qualification fields from 6 to 3 to increase lead conversion rate by an estimated +22%.'
+  ]
+};

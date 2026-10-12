@@ -95,6 +95,9 @@ export async function initDbSchema(): Promise<boolean> {
         meta_connected INTEGER DEFAULT 0,
         meta_account_id TEXT,
         meta_access_token TEXT,
+        google_connected INTEGER DEFAULT 0,
+        google_customer_id TEXT,
+        google_developer_token TEXT,
         past_learnings TEXT,
         primary_texts TEXT,
         headlines TEXT,
@@ -105,6 +108,11 @@ export async function initDbSchema(): Promise<boolean> {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Safe column additions for existing installations
+    try { await db.execute(`ALTER TABLE clients ADD COLUMN google_connected INTEGER DEFAULT 0`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE clients ADD COLUMN google_customer_id TEXT`); } catch (e) {}
+    try { await db.execute(`ALTER TABLE clients ADD COLUMN google_developer_token TEXT`); } catch (e) {}
 
     // 2. Ad Performance Records Table (Strictly numerical & metadata; video/image is link-only)
     await db.execute(`
@@ -229,9 +237,10 @@ export async function dbSaveClientProfile(client: ClientProfile): Promise<boolea
         id, name, business_name, website, product_service, main_offer, pricing,
         target_audience, geography, usp, brand_tone, currency, target_cpa,
         drive_creative_folder_url, drive_video_folder_url, meta_connected,
-        meta_account_id, meta_access_token, past_learnings, primary_texts,
+        meta_account_id, meta_access_token, google_connected, google_customer_id,
+        google_developer_token, past_learnings, primary_texts,
         headlines, descriptions, ctas, audience_insights, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         business_name = excluded.business_name,
@@ -250,6 +259,9 @@ export async function dbSaveClientProfile(client: ClientProfile): Promise<boolea
         meta_connected = excluded.meta_connected,
         meta_account_id = excluded.meta_account_id,
         meta_access_token = excluded.meta_access_token,
+        google_connected = excluded.google_connected,
+        google_customer_id = excluded.google_customer_id,
+        google_developer_token = excluded.google_developer_token,
         past_learnings = excluded.past_learnings,
         primary_texts = excluded.primary_texts,
         headlines = excluded.headlines,
@@ -280,6 +292,9 @@ export async function dbSaveClientProfile(client: ClientProfile): Promise<boolea
         client.metaConnected ? 1 : 0,
         client.metaAccountId || '',
         client.metaAccessToken || '',
+        client.googleConnected ? 1 : 0,
+        client.googleCustomerId || '',
+        client.googleDeveloperToken || '',
         JSON.stringify(client.pastLearnings || []),
         JSON.stringify(client.primaryTexts || []),
         JSON.stringify(client.headlines || []),
@@ -330,6 +345,9 @@ export async function dbGetClientProfile(clientId: string): Promise<ClientProfil
       metaConnected: Boolean(r.meta_connected),
       metaAccountId: (r.meta_account_id as string) || '',
       metaAccessToken: (r.meta_access_token as string) || '',
+      googleConnected: Boolean(r.google_connected),
+      googleCustomerId: (r.google_customer_id as string) || '',
+      googleDeveloperToken: (r.google_developer_token as string) || '',
       lastAnalysisDate: r.updated_at ? String(r.updated_at).split(' ')[0] : '2026-03-01',
       activeExperimentsCount: 0,
       currency: (r.currency as string) || 'INR',

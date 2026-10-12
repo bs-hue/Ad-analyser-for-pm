@@ -21,15 +21,17 @@ interface AdGeneratorViewProps {
   client: ClientProfile;
   diagnosis: AccountDiagnosisResult;
   onOpenModal: () => void;
+  selectedSubTabFilter?: string;
 }
 
 export const AdGeneratorView: React.FC<AdGeneratorViewProps> = ({
   client,
   diagnosis,
-  onOpenModal
+  onOpenModal,
+  selectedSubTabFilter = 'all'
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<'all' | 'hooks' | 'headlines' | 'primary' | 'scripts'>('all');
+  const activeCategory = (selectedSubTabFilter as 'all' | 'hooks' | 'headlines' | 'primary' | 'scripts') || 'all';
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -210,29 +212,6 @@ export const AdGeneratorView: React.FC<AdGeneratorViewProps> = ({
               <span>Launch AI Prompt Generator</span>
             </button>
           </div>
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 pt-6 mt-6 border-t border-[#f4f5f2] overflow-x-auto">
-          {[
-            { id: 'all', label: 'All Creative Assets' },
-            { id: 'hooks', label: `10 Hooks (${hooks.length})` },
-            { id: 'headlines', label: `5 Headlines (${headlines.length})` },
-            { id: 'primary', label: `Primary Copy (${primaryTexts.length})` },
-            { id: 'scripts', label: `3 UGC Scripts (${scripts.length})` }
-          ].map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id as any)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                activeCategory === cat.id
-                  ? 'bg-[#141517] text-white shadow-xs'
-                  : 'bg-[#f1f3ee] text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
         </div>
       </div>
 

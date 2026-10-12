@@ -136,19 +136,9 @@ export const PerformanceTable: React.FC<PerformanceTableProps> = ({
         {/* Filters */}
         <div className="flex items-center flex-wrap gap-2 text-xs">
           <div className="flex items-center gap-1.5 bg-[#f4f5f2] border border-[#eef0ec] px-4 py-2 rounded-full shadow-2xs">
-            <Filter className="w-3.5 h-3.5 text-slate-500" />
-            <select
-              value={selectedTier}
-              onChange={(e) => handleTierChange(e.target.value)}
-              className="bg-transparent font-bold text-[#141517] focus:outline-none cursor-pointer"
-            >
-              <option value="ALL">All Tiers ({records.length})</option>
-              <option value="Strong Performer">Strong Performers</option>
-              <option value="Promising">Promising</option>
-              <option value="Underperforming">Underperforming</option>
-              <option value="Average">Average</option>
-              <option value="Insufficient Data">Insufficient Data</option>
-            </select>
+            <span className="font-extrabold text-[#141517] text-xs">
+              {selectedTier === 'ALL' ? `All Tiers (${filteredRecords.length})` : `${selectedTier} (${filteredRecords.length})`}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5 bg-[#f4f5f2] border border-[#eef0ec] px-4 py-2 rounded-full shadow-2xs">

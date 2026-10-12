@@ -13,10 +13,24 @@ import {
 interface FunnelDiagramProps {
   stages: FunnelStage[];
   currency: string;
+  selectedSubTabFilter?: string;
 }
 
-export const FunnelDiagram: React.FC<FunnelDiagramProps> = ({ stages, currency }) => {
+export const FunnelDiagram: React.FC<FunnelDiagramProps> = ({ 
+  stages, 
+  currency,
+  selectedSubTabFilter = 'all'
+}) => {
   const currencySymbol = currency === 'USD' ? '$' : '₹';
+
+  const filteredStages = stages.filter((stage, idx) => {
+    if (!selectedSubTabFilter || selectedSubTabFilter === 'all') return true;
+    if (selectedSubTabFilter === 'tofu') return idx <= 1; // Impressions & Link Clicks
+    if (selectedSubTabFilter === 'mofu') return idx === 2 || idx === 3; // LP Views & Add to Cart
+    if (selectedSubTabFilter === 'bofu') return idx >= 4; // Purchases / Revenue
+    if (selectedSubTabFilter === 'bottlenecks') return stage.status === 'Bottleneck' || stage.status === 'Warning';
+    return true;
+  });
 
   const getStatusBadge = (status: FunnelStage['status']) => {
     switch (status) {
@@ -64,13 +78,13 @@ export const FunnelDiagram: React.FC<FunnelDiagramProps> = ({ stages, currency }
           </div>
         </div>
         <span className="text-xs font-bold text-[#141517] bg-[#f4f5f2] border border-[#eef0ec] px-4 py-2 rounded-full shadow-2xs">
-          {stages.length} Funnel Stages Evaluated
+          Showing {filteredStages.length} of {stages.length} Stages
         </span>
       </div>
 
       {/* Funnel Flow Cards */}
       <div className="space-y-4">
-        {stages.map((stage, idx) => {
+        {filteredStages.map((stage, idx) => {
           const isRevenue = stage.name === 'Revenue';
           const isFirst = idx === 0;
 

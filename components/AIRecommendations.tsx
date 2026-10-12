@@ -73,75 +73,23 @@ export const AIRecommendations: React.FC<AIRecommendationsProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top AI Navigation Tabs */}
-      <div className="bg-white border border-[#eef0ec] rounded-full p-2 shadow-2xs flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center flex-wrap gap-1.5 text-xs font-bold">
-          <button
-            onClick={() => handleSubTabChange('7days')}
-            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-full transition ${
-              activeSubTab === '7days'
-                ? 'bg-[#141517] text-[#e2f976] shadow-xs font-black'
-                : 'text-slate-600 hover:text-[#141517] hover:bg-[#f4f5f2]'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Next 7-Day Plan ({next7DaysPlan.length})</span>
-          </button>
-
-          <button
-            onClick={() => handleSubTabChange('winners')}
-            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-full transition ${
-              activeSubTab === 'winners'
-                ? 'bg-[#141517] text-[#e2f976] shadow-xs font-black'
-                : 'text-slate-600 hover:text-[#141517] hover:bg-[#f4f5f2]'
-            }`}
-          >
-            <Award className="w-3.5 h-3.5" />
-            <span>Winning Angles ({winningPatterns.length})</span>
-          </button>
-
-          <button
-            onClick={() => handleSubTabChange('underperforming')}
-            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-full transition ${
-              activeSubTab === 'underperforming'
-                ? 'bg-[#141517] text-[#e2f976] shadow-xs font-black'
-                : 'text-slate-600 hover:text-[#141517] hover:bg-[#f4f5f2]'
-            }`}
-          >
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Underperforming ({underperformingDiagnosis.length})</span>
-          </button>
-
-          <button
-            onClick={() => handleSubTabChange('avoid')}
-            className={`flex items-center gap-1.5 px-5 py-2.5 rounded-full transition ${
-              activeSubTab === 'avoid'
-                ? 'bg-[#141517] text-[#e2f976] shadow-xs font-black'
-                : 'text-slate-600 hover:text-[#141517] hover:bg-[#f4f5f2]'
-            }`}
-          >
-            <AlertOctagon className="w-3.5 h-3.5" />
-            <span>Patterns To Avoid ({patternsToAvoid.length})</span>
-          </button>
-        </div>
-
-        <button
-          onClick={onOpenAdGenerator}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-xs font-black shadow-xs transition"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-[#e2f976]" />
-          <span>Launch Ad Generator</span>
-        </button>
-      </div>
-
-      {/* SUB-TAB 1: NEXT 7-DAY ACTION PLAN (Section 26) */}
+      {/* SUB-TAB 1: NEXT 7-DAY ACTION PLAN */}
       {activeSubTab === '7days' && (
         <div className="space-y-4">
-          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs">
-            <h3 className="text-base font-extrabold text-[#141517] tracking-tight">Prioritized 7-Day Creative & Scaling Roadmap</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Action items categorized into Immediate fixes, Controlled experiments, and Future exploration—anchored with exact deterministic metrics.
-            </p>
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-extrabold text-[#141517] tracking-tight">Prioritized 7-Day Creative & Scaling Roadmap</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Action items categorized into Immediate fixes, Controlled experiments, and Future exploration—anchored with exact deterministic metrics.
+              </p>
+            </div>
+            <button
+              onClick={onOpenAdGenerator}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-xs font-black shadow-xs transition flex-shrink-0 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#e2f976]" />
+              <span>Launch Ad Generator</span>
+            </button>
           </div>
 
           <div className="space-y-4">

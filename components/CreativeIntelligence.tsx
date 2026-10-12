@@ -23,6 +23,8 @@ interface CreativeIntelligenceProps {
   creativeMap: Record<string, CreativeType>;
   currency: string;
   onAnalyzeVideo?: (ad: UnifiedAdRecord, driveUrl: string) => Promise<void>;
+  onBulkAnalyzeVideos?: (ads: UnifiedAdRecord[]) => Promise<void>;
+  bulkAnalyzingState?: { isRunning: boolean; current: number; total: number; currentAdName: string } | null;
   analyzingVideoId?: string | null;
   selectedFormatFilter?: string;
   onFormatFilterChange?: (format: string) => void;
@@ -33,6 +35,8 @@ export const CreativeIntelligence: React.FC<CreativeIntelligenceProps> = ({
   creativeMap,
   currency,
   onAnalyzeVideo,
+  onBulkAnalyzeVideos,
+  bulkAnalyzingState,
   analyzingVideoId,
   selectedFormatFilter,
   onFormatFilterChange
@@ -48,6 +52,9 @@ export const CreativeIntelligence: React.FC<CreativeIntelligenceProps> = ({
   const [isAnalyzeModalOpen, setIsAnalyzeModalOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string>(records[0]?.adId || '');
   const [inputDriveUrl, setInputDriveUrl] = useState<string>('');
+
+  // Ads with Drive links in dataset
+  const adsWithDrive = records.filter((r) => Boolean(r.driveUrl || r.creativeUrl));
 
   // Filter ads with creative intelligence
   const adWithCreatives = records.filter((r) => !!creativeMap[r.adId]);
@@ -75,33 +82,84 @@ export const CreativeIntelligence: React.FC<CreativeIntelligenceProps> = ({
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5 text-xs">
+            {onBulkAnalyzeVideos && adsWithDrive.length > 0 && (
+              <button
+                onClick={() => onBulkAnalyzeVideos(adsWithDrive)}
+                disabled={Boolean(bulkAnalyzingState?.isRunning)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#e2f976] hover:bg-[#d6ee65] text-[#141517] rounded-full font-black shadow-xs transition disabled:opacity-50"
+              >
+                {bulkAnalyzingState?.isRunning ? (
+                  <>
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-[#141517] border-t-transparent animate-spin" />
+                    <span>Analyzing in Bulk...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3.5 h-3.5 text-[#141517]" />
+                    <span>Bulk Analyze All Videos ({adsWithDrive.length})</span>
+                  </>
+                )}
+              </button>
+            )}
+
             {onAnalyzeVideo && (
               <button
                 onClick={() => setIsAnalyzeModalOpen(true)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full font-black shadow-xs transition"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#e2f976]" />
-                <span>Analyze Video (Drive Link)</span>
+                <span>Analyze Single Video</span>
               </button>
             )}
 
             <div className="flex items-center gap-2 bg-[#f4f5f2] border border-[#eef0ec] rounded-full px-4 py-2 shadow-2xs">
-              <span className="font-bold text-slate-500 text-[11px] uppercase tracking-wider">Format:</span>
-              <select
-                value={selectedFormat}
-                onChange={(e) => handleFormatChange(e.target.value)}
-                className="bg-transparent text-[#141517] font-bold text-xs focus:outline-none cursor-pointer"
-              >
-                <option value="ALL">All Formats ({adWithCreatives.length})</option>
-                <option value="UGC">UGC Videos</option>
-                <option value="Founder">Founder Breakdown</option>
-                <option value="Static">Static & Infographics</option>
-                <option value="Motion Graphic">Motion Graphic</option>
-              </select>
+              <span className="font-extrabold text-[#141517] text-xs">
+                {selectedFormat === 'ALL' ? `${adWithCreatives.length} Assets Audited` : `${selectedFormat} (${adWithCreatives.filter(ad => {
+                  const cr = creativeMap[ad.adId];
+                  if (selectedFormat === 'UGC' && cr?.format !== 'UGC') return false;
+                  if (selectedFormat === 'Founder' && cr?.format !== 'Founder') return false;
+                  if (selectedFormat === 'Static' && cr?.creativeType !== 'image') return false;
+                  if (selectedFormat === 'Motion Graphic' && cr?.format !== 'Motion Graphic') return false;
+                  return true;
+                }).length})`}
+              </span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Bulk Analysis Live Progress Banner */}
+      {bulkAnalyzingState?.isRunning && (
+        <div className="bg-[#141517] text-white p-5 rounded-[28px] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-neutral-800 shadow-md animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 rounded-full border-2 border-[#e2f976] border-t-transparent animate-spin flex-shrink-0" />
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-sm text-[#e2f976]">
+                  Bulk Analyzing Video {bulkAnalyzingState.current} of {bulkAnalyzingState.total}
+                </span>
+                <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full font-bold">
+                  720p Ephemeral Streaming
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 truncate max-w-lg mt-0.5">
+                Current Asset: {bulkAnalyzingState.currentAdName}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="w-32 bg-white/10 rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-[#e2f976] h-full transition-all duration-300 rounded-full"
+                style={{ width: `${Math.round((bulkAnalyzingState.current / bulkAnalyzingState.total) * 100)}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-slate-300 min-w-[36px]">
+              {Math.round((bulkAnalyzingState.current / bulkAnalyzingState.total) * 100)}%
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Grid of Creative Asset Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

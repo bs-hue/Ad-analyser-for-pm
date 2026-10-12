@@ -29,9 +29,7 @@ import {
 } from '@/lib/demoData';
 import { runClaudePerformanceAnalysis } from '@/lib/claudeEngine';
 import { NeoBentoDashboard } from '@/components/NeoBentoDashboard';
-import { Header } from '@/components/Header';
 import { DataSourceModal } from '@/components/DataSourceModal';
-import { MetricCards } from '@/components/MetricCards';
 import { PerformanceTable } from '@/components/PerformanceTable';
 import { CreativeIntelligence } from '@/components/CreativeIntelligence';
 import { LandingPageAnalyzer } from '@/components/LandingPageAnalyzer';
@@ -81,6 +79,12 @@ export default function ClientWorkspacePage() {
   const [historyRuns, setHistoryRuns] = useState<HistoricalAnalysisRun[]>([]);
   const [creativeMap, setCreativeMap] = useState<Record<string, CreativeType>>(DEMO_CREATIVE_INTELLIGENCE);
   const [analyzingVideoId, setAnalyzingVideoId] = useState<string | null>(null);
+  const [bulkAnalyzingState, setBulkAnalyzingState] = useState<{
+    isRunning: boolean;
+    current: number;
+    total: number;
+    currentAdName: string;
+  } | null>(null);
   const [analysisStep, setAnalysisStep] = useState<string>('');
   
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('overview');
@@ -101,6 +105,7 @@ export default function ClientWorkspacePage() {
   };
   const [dateRange, setDateRange] = useState('Last 7 Days');
   const [isDataSourceModalOpen, setIsDataSourceModalOpen] = useState(false);
+  const [dataSourceInitialTab, setDataSourceInitialTab] = useState<'manual' | 'sheet' | 'credentials'>('sheet');
   const [isAdGeneratorOpen, setIsAdGeneratorOpen] = useState(false);
   const [isReportView, setIsReportView] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -218,10 +223,11 @@ export default function ClientWorkspacePage() {
       });
 
       const data = await response.json();
-      if (data.success && data.creative) {
+      const creativeObj = data.creative || data.creativeIntelligence;
+      if (data.success && creativeObj) {
         const updated = {
           ...creativeMap,
-          [ad.adId]: data.creative
+          [ad.adId]: creativeObj
         };
         setCreativeMap(updated);
         if (currentClient) {
@@ -234,6 +240,69 @@ export default function ClientWorkspacePage() {
       alert(`Error during video analysis: ${err.message}`);
     } finally {
       setAnalyzingVideoId(null);
+    }
+  };
+
+  const handleBulkAnalyzeVideos = async (adsToAnalyze: UnifiedAdRecord[]) => {
+    const targets = adsToAnalyze.filter(a => a.driveUrl || a.creativeUrl);
+    if (targets.length === 0) {
+      alert('No Google Drive video links found in your ads dataset. Please add Drive links to your spreadsheet.');
+      return;
+    }
+
+    setBulkAnalyzingState({
+      isRunning: true,
+      current: 0,
+      total: targets.length,
+      currentAdName: targets[0].adName
+    });
+
+    let currentMap = { ...creativeMap };
+
+    for (let i = 0; i < targets.length; i++) {
+      const ad = targets[i];
+      const videoUrl = ad.driveUrl || ad.creativeUrl || '';
+
+      setBulkAnalyzingState({
+        isRunning: true,
+        current: i + 1,
+        total: targets.length,
+        currentAdName: ad.adName
+      });
+      setAnalyzingVideoId(ad.adId);
+
+      try {
+        const response = await fetch('/api/analyze-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            driveUrl: videoUrl,
+            adRecord: ad,
+            targetCpa: currentClient?.targetCpa || 300,
+            productName: currentClient?.productService || 'Product',
+            offerDescription: currentClient?.pricing || currentClient?.mainOffer || 'Offer'
+          })
+        });
+
+        const data = await response.json();
+        const creativeObj = data.creative || data.creativeIntelligence;
+        if (data.success && creativeObj) {
+          currentMap = {
+            ...currentMap,
+            [ad.adId]: creativeObj
+          };
+          setCreativeMap({ ...currentMap });
+        }
+      } catch (e) {
+        console.error(`Failed to analyze video for ${ad.adName}:`, e);
+      }
+    }
+
+    setAnalyzingVideoId(null);
+    setBulkAnalyzingState(null);
+
+    if (currentClient) {
+      runAnalysis(currentClient, records, dateRange, currentMap);
     }
   };
 
@@ -316,7 +385,10 @@ export default function ClientWorkspacePage() {
           }
           runAnalysis(currentClient, records, range);
         }}
-        onOpenDataSourceModal={() => setIsDataSourceModalOpen(true)}
+        onOpenDataSourceModal={(tab?: 'manual' | 'sheet' | 'credentials') => {
+          setDataSourceInitialTab(tab || 'sheet');
+          setIsDataSourceModalOpen(true);
+        }}
         onAnalyze={() => runAnalysis(currentClient, records, dateRange)}
         isAnalyzing={isAnalyzing}
         analysisStep={analysisStep}
@@ -341,51 +413,6 @@ export default function ClientWorkspacePage() {
           />
         ) : (
           <div className="space-y-6">
-            {/* TAB 1: OVERVIEW */}
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                {/* Executive Takeaways Banner */}
-                <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#f4f5f2]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
-                        <Sparkles className="w-5 h-5 text-[#e2f976]" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-extrabold text-[#141517]">
-                          Strategic Diagnosis ({dateRange})
-                        </h3>
-                        <p className="text-xs text-slate-500">Autonomous performance marketer analysis</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-black text-[#141517] bg-[#e2f976] px-4 py-1.5 rounded-full shadow-2xs">
-                      Blended ROAS: {diagnosis.summary.blendedRoas.toFixed(2)}x
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 text-xs text-slate-700">
-                    {diagnosis.executiveSummary.map((point, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 bg-[#fbfcfb] p-3.5 rounded-2xl border border-[#eef0ec]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#141517] mt-1.5 flex-shrink-0" />
-                        <p className="leading-relaxed font-semibold text-[#141517]">{point}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Performance Table */}
-                <PerformanceTable
-                  records={diagnosis.records}
-                  creativeMap={creativeMap}
-                  currency={currentClient.currency}
-                  onAnalyzeVideo={handleAnalyzeVideo}
-                  analyzingVideoId={analyzingVideoId}
-                  selectedTierFilter={activeSubTab}
-                  onTierFilterChange={setActiveSubTab}
-                />
-              </div>
-            )}
-
             {/* TAB 2: PERFORMANCE */}
             {activeTab === 'performance' && (
               <PerformanceTable
@@ -406,6 +433,8 @@ export default function ClientWorkspacePage() {
                 creativeMap={creativeMap}
                 currency={currentClient.currency}
                 onAnalyzeVideo={handleAnalyzeVideo}
+                onBulkAnalyzeVideos={handleBulkAnalyzeVideos}
+                bulkAnalyzingState={bulkAnalyzingState}
                 analyzingVideoId={analyzingVideoId}
                 selectedFormatFilter={activeSubTab}
                 onFormatFilterChange={setActiveSubTab}
@@ -417,14 +446,22 @@ export default function ClientWorkspacePage() {
               <FunnelDiagram
                 stages={diagnosis.funnelStages}
                 currency={currentClient.currency}
+                selectedSubTabFilter={activeSubTab}
               />
             )}
 
-            {/* TAB 5: LANDING PAGES */}
+            {/* TAB 5: LANDING PAGES & CLARITY */}
             {activeTab === 'landing_pages' && (
               <LandingPageAnalyzer
                 lpAnalysis={diagnosis.landingPageAnalysis}
                 records={diagnosis.records}
+                client={currentClient}
+                onUpdateClient={(updated) => {
+                  setCurrentClient(updated);
+                  setClients(getStoredClients());
+                }}
+                selectedSubTabFilter={activeSubTab}
+                onSubTabFilterChange={setActiveSubTab}
               />
             )}
 
@@ -452,6 +489,7 @@ export default function ClientWorkspacePage() {
                 client={currentClient}
                 diagnosis={diagnosis}
                 onOpenModal={() => setIsAdGeneratorOpen(true)}
+                selectedSubTabFilter={activeSubTab}
               />
             )}
 
@@ -469,6 +507,7 @@ export default function ClientWorkspacePage() {
               <HistoricalView
                 history={historyRuns}
                 client={currentClient}
+                selectedSubTabFilter={activeSubTab}
               />
             )}
 
@@ -477,18 +516,24 @@ export default function ClientWorkspacePage() {
               <ClientKnowledgeView
                 client={currentClient}
                 onSaveClient={handleSaveClientProfile}
+                selectedSubTabFilter={activeSubTab}
               />
             )}
           </div>
         )}
       </NeoBentoDashboard>
 
-      {/* Data Source Modal */}
+      {/* Data Source Modal (Replaced with 3 options matching New Client) */}
       <DataSourceModal
         isOpen={isDataSourceModalOpen}
         onClose={() => setIsDataSourceModalOpen(false)}
         client={currentClient}
         onDataLoaded={handleDataLoaded}
+        initialTab={dataSourceInitialTab}
+        onClientUpdated={(updated) => {
+          setCurrentClient(updated);
+          setClients(getStoredClients());
+        }}
       />
 
       {/* Ad Generator Modal */}

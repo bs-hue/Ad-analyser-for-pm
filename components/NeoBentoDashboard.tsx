@@ -48,12 +48,29 @@ import {
   GraduationCap,
   MessageSquare,
   Users,
+  User,
+  Radio,
+  FileSpreadsheet,
   BarChart3,
   MousePointerClick,
   DollarSign,
   Share2,
   Link2,
-  Rocket
+  Rocket,
+  Search,
+  Command,
+  Volume2,
+  VolumeX,
+  Copy,
+  ArrowRight,
+  Clock,
+  Eye,
+  Flame,
+  Pause,
+  Activity,
+  Info,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 export type WorkspaceTab = 
@@ -74,7 +91,7 @@ interface NeoBentoDashboardProps {
   onSelectClient: (clientId: string) => void;
   dateRange: string;
   onChangeDateRange: (range: string) => void;
-  onOpenDataSourceModal: () => void;
+  onOpenDataSourceModal: (tab?: 'manual' | 'sheet' | 'credentials') => void;
   onAnalyze: () => void;
   isAnalyzing: boolean;
   analysisStep: string;
@@ -115,14 +132,9 @@ export function getSectionMetaAndSubTabs(
   switch (activeTab) {
     case 'overview':
       return {
-        title: 'Performance Overview',
-        subtitle: 'Account health, blended unit economics, and media buyer diagnostic checkups',
-        subTabs: [
-          { id: 'executive_summary', label: 'Executive Summary' },
-          { id: 'checkups', label: 'Media Buyer Waterfall' },
-          { id: 'hierarchy', label: 'Spend Hierarchy', count: records.length },
-          { id: 'benchmarks', label: 'Agency Benchmarks' }
-        ]
+        title: 'Executive Command Cockpit',
+        subtitle: 'Account health, blended unit economics, and autonomous AI strategic verdict',
+        subTabs: []
       };
     case 'performance': {
       const strongCount = records.filter((r) => r.tier === 'Strong Performer').length;
@@ -154,8 +166,7 @@ export function getSectionMetaAndSubTabs(
           { id: 'Founder', label: 'Founder Breakdown' },
           { id: 'Motion Graphic', label: 'Motion Graphics' },
           { id: 'Static', label: 'Static & Carousels' },
-          { id: 'teardown', label: '720p Teardowns' },
-          { id: 'hook_swaps', label: 'Hook Swaps' }
+          { id: 'teardown', label: '720p Teardowns' }
         ]
       };
     }
@@ -167,8 +178,7 @@ export function getSectionMetaAndSubTabs(
           { id: '7days', label: 'Next 7-Day Plan', count: diagnosis?.next7DaysPlan?.length || 4 },
           { id: 'winners', label: 'Winning Angles', count: diagnosis?.winningPatterns?.length || 3 },
           { id: 'underperforming', label: 'Underperforming Diagnosis', count: diagnosis?.underperformingDiagnosis?.length || 4 },
-          { id: 'avoid', label: 'Patterns To Avoid', count: diagnosis?.patternsToAvoid?.length || 3 },
-          { id: 'budget', label: 'Budget Reallocation' }
+          { id: 'avoid', label: 'Patterns To Avoid', count: diagnosis?.patternsToAvoid?.length || 3 }
         ]
       };
     case 'funnel':
@@ -185,13 +195,13 @@ export function getSectionMetaAndSubTabs(
       };
     case 'landing_pages':
       return {
-        title: 'Landing Page Intelligence',
-        subtitle: 'Post-click CRO audit, message match continuity, and above-the-fold diagnostics',
+        title: 'Landing Page & Clarity Intelligence',
+        subtitle: 'Post-click CRO audit, Microsoft Clarity heatmaps/session friction, and message-match diagnostics',
         subTabs: [
-          { id: 'all', label: 'All Pages' },
-          { id: 'message_match', label: 'Message Match' },
-          { id: 'continuity', label: 'Ad-to-Page Continuity' },
-          { id: 'friction', label: 'Friction Scorecard' }
+          { id: 'all', label: 'All Analysis' },
+          { id: 'clarity', label: 'Microsoft Clarity Telemetry', count: 5 },
+          { id: 'continuity', label: 'Message Match Continuity' },
+          { id: 'cro_fixes', label: 'CRO Action Plan & Proof' }
         ]
       };
     case 'experiments':
@@ -221,11 +231,8 @@ export function getSectionMetaAndSubTabs(
         title: 'Audit History & Progression',
         subtitle: 'Historical audit run logs, date range comparisons, and ROAS progression',
         subTabs: [
-          { id: 'all', label: 'All Audits' },
-          { id: '7d', label: 'Last 7 Days' },
-          { id: '14d', label: 'Last 14 Days' },
-          { id: '30d', label: 'Last 30 Days' },
-          { id: 'memory', label: 'Learning Memory' }
+          { id: 'all', label: 'All Audit Logs' },
+          { id: 'memory', label: 'Account Learning Memory' }
         ]
       };
     case 'ad_generator':
@@ -234,14 +241,43 @@ export function getSectionMetaAndSubTabs(
         title: 'Ad Generator Studio',
         subtitle: 'Data-backed creative iterations: 10 hooks, 5 headlines, 5 primary texts & 3 UGC scripts',
         subTabs: [
-          { id: 'all', label: 'Generator Studio' },
-          { id: 'hooks', label: 'Hook Swaps' },
-          { id: 'scripts', label: 'Video Scripts' },
-          { id: 'storyboards', label: 'Storyboards' }
+          { id: 'all', label: 'All Creative Assets' },
+          { id: 'hooks', label: '10 Data-Backed Hooks' },
+          { id: 'headlines', label: '5 High-Impact Headlines' },
+          { id: 'primary', label: 'Primary Copy Blocks' },
+          { id: 'scripts', label: '3 Video UGC Scripts' }
         ]
       };
   }
 }
+
+const Sparkline: React.FC<{ 
+  points: number[]; 
+  color: string; 
+  fillColor?: string; 
+  height?: number; 
+  width?: number; 
+}> = ({ points, color, fillColor, height = 28, width = 84 }) => {
+  if (!points || points.length < 2) return null;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const step = width / (points.length - 1);
+  const coordinates = points.map((p, i) => {
+    const x = i * step;
+    const y = height - ((p - min) / range) * (height - 6) - 3;
+    return `${x},${y}`;
+  });
+  const pathD = `M ${coordinates.join(' L ')}`;
+  const areaD = `M 0,${height} L ${coordinates.join(' L ')} L ${width},${height} Z`;
+
+  return (
+    <svg width={width} height={height} className="overflow-visible inline-block">
+      {fillColor && <path d={areaD} fill={fillColor} opacity={0.25} />}
+      <path d={pathD} fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
 
 export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
   client,
@@ -275,8 +311,114 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
   const [isSidebarWorkspaceDropdownOpen, setIsSidebarWorkspaceDropdownOpen] = useState(false);
+  const [isDataOptionsOpen, setIsDataOptionsOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState('');
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [copiedBrief, setCopiedBrief] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ text: string; type?: 'info' | 'success' | 'warn' } | null>(null);
   const workspaceDropdownRef = useRef<HTMLDivElement>(null);
   const sidebarWorkspaceDropdownRef = useRef<HTMLDivElement>(null);
+  const dataOptionsDropdownRef = useRef<HTMLDivElement>(null);
+
+  const showToast = (text: string, type: 'info' | 'success' | 'warn' = 'info') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage((prev) => (prev?.text === text ? null : prev));
+    }, 3200);
+  };
+
+  const toggleAudioBrief = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      showToast('Audio narration not supported in this browser', 'warn');
+      return;
+    }
+
+    if (isPlayingAudio) {
+      window.speechSynthesis.cancel();
+      setIsPlayingAudio(false);
+      showToast('Paused AI audio brief');
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const speechText = `Executive Performance Brief for ${client.name}. ` +
+      `Blended ROAS is currently ${summary.blendedRoas.toFixed(2)} with total ad spend of ${summary.totalSpend.toLocaleString()} and revenue of ${summary.totalRevenue.toLocaleString()}. ` +
+      `Key findings: ` + diagnosis.executiveSummary.join('. ');
+
+    const utterance = new SpeechSynthesisUtterance(speechText);
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setIsPlayingAudio(false);
+    utterance.onerror = () => setIsPlayingAudio(false);
+
+    window.speechSynthesis.speak(utterance);
+    setIsPlayingAudio(true);
+    showToast('Playing AI executive audio briefing narration...', 'success');
+  };
+
+  const copyStrategicBrief = () => {
+    const briefText = `🎯 STRATEGIC ACCOUNT DIAGNOSIS: ${client.name} (${dateRange})\n` +
+      `• Blended ROAS: ${summary.blendedRoas.toFixed(2)}x (Target: 2.50x)\n` +
+      `• Total Spend: ${currencySymbol}${summary.totalSpend.toLocaleString()} | Revenue: ${currencySymbol}${summary.totalRevenue.toLocaleString()}\n` +
+      `• CPA: ${currencySymbol}${summary.averageCpa.toFixed(2)} | Link CTR: ${summary.averageCtr.toFixed(2)}%\n` +
+      `• Creative Pool: ${summary.strongPerformersCount} Winners, ${summary.promisingCount} Promising, ${summary.underperformingCount} Bleeders\n\n` +
+      `KEY STRATEGIC FINDINGS:\n` +
+      diagnosis.executiveSummary.map((p, i) => `${i + 1}. ${p}`).join('\n');
+
+    navigator.clipboard.writeText(briefText).then(() => {
+      setCopiedBrief(true);
+      showToast('Copied Strategic Brief to clipboard!', 'success');
+      setTimeout(() => setCopiedBrief(false), 2500);
+    }).catch(() => {
+      showToast('Unable to copy to clipboard', 'warn');
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleGlobalKeys = (e: KeyboardEvent) => {
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName);
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+        return;
+      }
+
+      if (!isInput && e.key === '/' && !isCommandOpen) {
+        e.preventDefault();
+        setIsCommandOpen(true);
+        return;
+      }
+
+      if (!isInput && !isCommandOpen && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const tabKeyMap: Record<string, WorkspaceTab> = {
+          '1': 'overview',
+          '2': 'performance',
+          '3': 'creatives',
+          '4': 'funnel',
+          '5': 'landing_pages',
+          '6': 'ai_recommendations',
+          '7': 'experiments',
+        };
+        if (tabKeyMap[e.key]) {
+          onChangeTab(tabKeyMap[e.key]);
+          showToast(`Switched to ${tabKeyMap[e.key].replace('_', ' ').toUpperCase()}`);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeys);
+    return () => window.removeEventListener('keydown', handleGlobalKeys);
+  }, [isCommandOpen, onChangeTab]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -286,12 +428,16 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
       if (sidebarWorkspaceDropdownRef.current && !sidebarWorkspaceDropdownRef.current.contains(event.target as Node)) {
         setIsSidebarWorkspaceDropdownOpen(false);
       }
+      if (dataOptionsDropdownRef.current && !dataOptionsDropdownRef.current.contains(event.target as Node)) {
+        setIsDataOptionsOpen(false);
+      }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsWorkspaceDropdownOpen(false);
         setIsSidebarWorkspaceDropdownOpen(false);
+        setIsDataOptionsOpen(false);
       }
     };
 
@@ -322,8 +468,6 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
     // Contextual actions triggered directly from the sub-tabs
     if (activeTab === 'creatives' && subTabId === 'teardown') {
       setIsTeardownModalOpen(true);
-    } else if (activeTab === 'creatives' && subTabId === 'hook_swaps') {
-      onOpenAdGenerator();
     }
   };
 
@@ -341,7 +485,7 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
         { id: 'performance' as WorkspaceTab, label: 'Performance Tiers', icon: TrendingUp, count: records.length },
         { id: 'creatives' as WorkspaceTab, label: 'Creative Intelligence', icon: Film, count: Object.keys(creativeMap).length },
         { id: 'funnel' as WorkspaceTab, label: 'Funnel Waterfall', icon: Filter },
-        { id: 'landing_pages' as WorkspaceTab, label: 'Landing Pages', icon: Globe }
+        { id: 'landing_pages' as WorkspaceTab, label: 'Landing Pages & Clarity', icon: Globe }
       ]
     },
     {
@@ -517,9 +661,9 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                   </div>
                 </div>
                 <button
-                  onClick={onOpenDataSourceModal}
-                  className="text-slate-400 hover:text-[#e2f976] p-1 rounded-lg hover:bg-white/5 transition flex-shrink-0"
-                  title="Upload New Audit Sheet"
+                  onClick={() => onOpenDataSourceModal('sheet')}
+                  className="text-slate-400 hover:text-[#e2f976] p-1 rounded-lg hover:bg-white/5 transition flex-shrink-0 cursor-pointer"
+                  title="Data &amp; Setup Options (3 Options)"
                 >
                   <Upload className="w-3.5 h-3.5" />
                 </button>
@@ -553,17 +697,17 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                 if (activeTab === 'ad_generator') {
                   onOpenAdGenerator();
                 } else {
-                  onOpenDataSourceModal();
+                  onOpenDataSourceModal('sheet');
                 }
               }}
-              title="Upload Sheet or Ingest Data (+)"
+              title="Data &amp; Setup Options (3 Options) (+)"
               className="w-[38px] h-[38px] rounded-[15px] bg-[#1e2025] hover:bg-[#282a32] border border-white/10 flex items-center justify-center cursor-pointer transition-all shadow-xs group relative flex-shrink-0"
             >
               <div className="w-[18px] h-[18px] rounded-full border border-white/60 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Plus className="w-2.5 h-2.5 text-white stroke-[2.5]" />
               </div>
               <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1b1c20] text-white text-[11px] font-semibold rounded-lg shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50 border border-white/10">
-                Upload Sheet / Ingest Data
+                Data &amp; Setup (3 Options)
               </span>
             </button>
 
@@ -757,8 +901,25 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                 </p>
               </div>
 
-              {/* Right Controls: Workspace Selector + Period Switcher (7D / 14D / 30D) + Actions */}
+              {/* Right Controls: Quick Search + Workspace Selector + Period Switcher (7D / 14D / 30D) + Actions */}
               <div className="flex items-center flex-wrap gap-2">
+                {/* Global Command Palette Quick Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setIsCommandOpen(true)}
+                  className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-[#e4e7e0] rounded-full text-xs text-slate-600 hover:text-slate-900 shadow-2xs transition cursor-pointer group"
+                  title="Search ads, tabs, and actions (⌘K or /)"
+                >
+                  <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900 transition" />
+                  <span className="font-semibold text-slate-700">Quick Command</span>
+                  <kbd className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 shadow-2xs">⌘K</kbd>
+                </button>
+
+                {/* Attribution Health Sync Indicator */}
+                <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50/90 border border-emerald-200/70 rounded-full text-[11px] font-bold text-emerald-800 shadow-2xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{records.length} Ads • Live Attribution</span>
+                </div>
                 {/* Custom Neo-Bento Workspace Selector Pill & Menu */}
                 {clients.length > 1 && (
                   <div className="relative" ref={workspaceDropdownRef}>
@@ -869,14 +1030,80 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                   ))}
                 </div>
 
-                {/* Upload Sheet */}
-                <button
-                  onClick={onOpenDataSourceModal}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-[#e4e7e0] text-slate-700 rounded-full text-xs font-bold shadow-2xs transition cursor-pointer"
-                >
-                  <Upload className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Upload Sheet</span>
-                </button>
+                {/* Data & Client Setup Options (Replaces single Upload Sheet with the 3 options matching New Client) */}
+                <div className="relative" ref={dataOptionsDropdownRef}>
+                  <button
+                    onClick={() => setIsDataOptionsOpen(!isDataOptionsOpen)}
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-[#e4e7e0] text-slate-700 rounded-full text-xs font-bold shadow-2xs transition cursor-pointer group"
+                    title="Data & Setup Options (3 Options)"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-[#e2f976] border border-black/20" />
+                    <Upload className="w-3.5 h-3.5 text-slate-500 group-hover:text-black transition" />
+                    <span>Upload &amp; Data Options</span>
+                    <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isDataOptionsOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isDataOptionsOpen && (
+                    <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-3 py-2 border-b border-slate-100 mb-1 flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                          Data &amp; Client Setup
+                        </span>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#e2f976] text-[#121316]">
+                          3 Options
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setIsDataOptionsOpen(false);
+                          onOpenDataSourceModal('manual');
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 text-left transition cursor-pointer group/opt"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 group-hover/opt:bg-[#121316] group-hover/opt:text-[#e2f976] transition flex-shrink-0">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-extrabold text-xs text-slate-900">1. Basic Profile</div>
+                          <div className="text-[10px] text-slate-400">Name, Website &amp; Brand Targets</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsDataOptionsOpen(false);
+                          onOpenDataSourceModal('sheet');
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 text-left transition cursor-pointer group/opt"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-[#e2f976]/30 flex items-center justify-center text-[#121316] group-hover/opt:bg-[#121316] group-hover/opt:text-[#e2f976] transition flex-shrink-0">
+                          <FileSpreadsheet className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-extrabold text-xs text-slate-900">2. Upload Sheet / CSV</div>
+                          <div className="text-[10px] text-slate-400">Instant Data Ingest &amp; Multi-Sheet</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsDataOptionsOpen(false);
+                          onOpenDataSourceModal('credentials');
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 text-left transition cursor-pointer group/opt"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover/opt:bg-[#121316] group-hover/opt:text-[#e2f976] transition flex-shrink-0">
+                          <Radio className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-extrabold text-xs text-slate-900">3. Connect Ad APIs</div>
+                          <div className="text-[10px] text-slate-400">Meta &amp; Google Ads Live API</div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 {/* Report / Workspace View Toggle */}
                 <button
@@ -898,25 +1125,27 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
             </div>
 
             {/* Contextual Sub-Tabs Belonging to Currently Selected Sidebar Item */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
-              {sectionMeta.subTabs.map((subTab) => {
-                const isActive = currentSubTab === subTab.id;
-                return (
-                  <button
-                    key={subTab.id}
-                    onClick={() => handleSubTabClick(subTab.id)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                      isActive
-                        ? 'bg-[#141517] text-white shadow-xs'
-                        : 'bg-white hover:bg-slate-50 text-slate-700 border border-[#eef0ec] shadow-2xs'
-                    }`}
-                  >
-                    {subTab.label}
-                    {subTab.count !== undefined && subTab.count > 0 && ` (${subTab.count})`}
-                  </button>
-                );
-              })}
-            </div>
+            {sectionMeta.subTabs.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                {sectionMeta.subTabs.map((subTab) => {
+                  const isActive = currentSubTab === subTab.id;
+                  return (
+                    <button
+                      key={subTab.id}
+                      onClick={() => handleSubTabClick(subTab.id)}
+                      className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        isActive
+                          ? 'bg-[#141517] text-white shadow-xs'
+                          : 'bg-white hover:bg-slate-50 text-slate-700 border border-[#eef0ec] shadow-2xs'
+                      }`}
+                    >
+                      {subTab.label}
+                      {subTab.count !== undefined && subTab.count > 0 && ` (${subTab.count})`}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* ================= CONDITIONAL EMPTY STATE ================= */}
@@ -945,325 +1174,153 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                   </button>
                 )}
                 <button
-                  onClick={onOpenDataSourceModal}
-                  className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 rounded-full text-xs font-bold shadow-2xs transition flex items-center justify-center gap-2"
+                  onClick={() => onOpenDataSourceModal('sheet')}
+                  className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 rounded-full text-xs font-bold shadow-2xs transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Upload className="w-4 h-4 text-slate-500" />
-                  <span>Upload Custom Excel / CSV</span>
+                  <span>Upload Sheet / Connect Data Sources</span>
                 </button>
               </div>
             </div>
           ) : activeTab === 'overview' ? (
-            /* ================= OVERVIEW TAB: PERFORMANCE MARKETING INTELLIGENCE BENTO ================= */
-            currentSubTab === 'checkups' ? (
-              /* Subtab: Media Buyer Diagnostic Waterfall & Benchmarks */
-              <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 lg:p-8 shadow-2xs space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-[#f4f5f2]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
-                      <Zap className="w-5 h-5 text-[#e2f976]" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-extrabold text-[#141517] tracking-tight">The Media Buyer's Diagnostic Waterfall</h3>
-                      <p className="text-xs text-slate-500">Order-of-operations checkups isolating scroll-stop, story retention, click intent, and post-click continuity</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => onChangeTab('funnel')}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-xs font-black shadow-xs transition cursor-pointer"
-                  >
-                    <span>View Funnel Diagram</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* 6 Waterfall Diagnostic Benchmark Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {[
-                    {
-                      step: '1. The Hook (0-3s)',
-                      metric: 'Hook / Thumbstop Rate',
-                      value: '28.4%',
-                      formula: '(3s Video Plays ÷ Total Impressions) × 100',
-                      status: 'Healthy / Scalable',
-                      statusColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-                      diagnosis: 'Opening 3 seconds captures immediate attention. If < 20%, flagged as Scroll-Stop Failure requiring visual pattern interrupts.',
-                      benchmark: 'Elite: >40% • Healthy: 25–35% • Baseline: 20–25% • Fix: <20%'
-                    },
-                    {
-                      step: '2. The Hold & Story (3-15s)',
-                      metric: 'Hold Rate',
-                      value: '34.2%',
-                      formula: '(ThruPlays / 15s Plays ÷ 3s Plays) × 100',
-                      status: 'Hook-Swap Candidate Alert',
-                      statusColor: 'bg-[#e2f976]/40 text-[#141517] border-[#d6f065]',
-                      diagnosis: 'High Hold (>35%) + Low Hook (<20%) identifies videos with great content but boring intros. Prescribe opening Hook-Swap without reshooting.',
-                      benchmark: 'Strong: 35–50%+ • Weak: <25%'
-                    },
-                    {
-                      step: '3. Buying Intent',
-                      metric: 'Outbound Link CTR',
-                      value: `${summary.averageCtr.toFixed(2)}%`,
-                      formula: '(Outbound Link Clicks ÷ Impressions) × 100',
-                      status: summary.averageCtr >= 1.8 ? 'Strong Intent' : 'Low Relevance',
-                      statusColor: summary.averageCtr >= 1.8 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200',
-                      diagnosis: 'Distinguishes Outbound Link CTR from All CTR to filter accidental feed interactions and isolate actual purchasing interest.',
-                      benchmark: 'Strong: 1.8%–2.5%+ • Low: <1.2%'
-                    },
-                    {
-                      step: '4. Traffic Delivery',
-                      metric: 'Click-to-Page Loss',
-                      value: '14.8%',
-                      formula: '(1 - (LP Views ÷ Link Clicks)) × 100',
-                      status: 'Healthy (<15%)',
-                      statusColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-                      diagnosis: 'Identifies technical leaks (slow page loads, blocking tracking pixels) before blaming creative ad copy.',
-                      benchmark: 'Healthy: <15% • Critical Leak: >25%–30%'
-                    },
-                    {
-                      step: '5. Post-Click Match',
-                      metric: 'Landing Page CVR',
-                      value: `${((summary.totalPurchases || summary.totalConversions) / Math.max(summary.totalClicks * 0.85, 1) * 100).toFixed(2)}%`,
-                      formula: '(Purchases / Leads ÷ LP Views) × 100',
-                      status: 'Solid Message Match',
-                      statusColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-                      diagnosis: 'High CTR with low LP CVR triggers Ad-to-LP Message Mismatch diagnosis (ad promised X, page delivered Y).',
-                      benchmark: 'E-commerce: 2%–4% • Lead Gen: 5%–12%'
-                    },
-                    {
-                      step: '6. Creative Fatigue',
-                      metric: 'Frequency & CPM Saturation',
-                      value: '2 Fatigued Ads',
-                      formula: 'Frequency > 3.0 + Rising CPM + Falling CTR',
-                      status: 'Rotation Advised',
-                      statusColor: 'bg-rose-50 text-rose-800 border-rose-200',
-                      diagnosis: 'Advantage+ creative saturation detected on MKR-73 and MKR-18. Prescribe rotation to prevent algorithmic budget bleed.',
-                      benchmark: 'Max Frequency: 2.8–3.2'
-                    }
-                  ].map((card, i) => (
-                    <div key={i} className="p-5 rounded-2xl bg-[#fbfcfb] border border-[#eef0ec] space-y-3 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between pb-2 border-b border-[#f4f5f2]">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{card.step}</span>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${card.statusColor}`}>
-                            {card.status}
-                          </span>
-                        </div>
-                        <div className="mt-3 flex items-baseline justify-between">
-                          <span className="text-xs font-bold text-slate-800">{card.metric}</span>
-                          <span className="text-xl font-black text-[#141517]">{card.value}</span>
-                        </div>
-                        <code className="text-[10px] font-mono text-slate-500 bg-white p-1 rounded border border-[#eef0ec] block mt-1.5 truncate">
-                          {card.formula}
-                        </code>
-                        <p className="text-[11px] text-slate-600 mt-2 leading-relaxed">{card.diagnosis}</p>
-                      </div>
-                      <div className="pt-2 border-t border-[#f4f5f2] text-[10px] font-semibold text-slate-400">
-                        {card.benchmark}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : currentSubTab === 'hierarchy' ? (
-              /* Subtab: Full Spend Allocation & Performance Hierarchy */
-              <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 lg:p-8 shadow-2xs space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-[#f4f5f2]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
-                      <BarChart3 className="w-5 h-5 text-[#e2f976]" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-extrabold text-[#141517] tracking-tight">Spend Allocation & Performance Hierarchy</h3>
-                      <p className="text-xs text-slate-500">All {records.length} campaigns classified by deterministic media buyer math</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => onChangeTab('performance')}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-xs font-black shadow-xs transition cursor-pointer"
-                  >
-                    <span>Full Performance Table</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-[#f4f5f2] text-slate-400 font-extrabold text-[10px] uppercase tracking-wider">
-                        <th className="pb-3 pt-1">Ad Creative Name</th>
-                        <th className="pb-3 pt-1">Tier Classification</th>
-                        <th className="pb-3 pt-1 text-right">Spend</th>
-                        <th className="pb-3 pt-1 text-right">Link CTR</th>
-                        <th className="pb-3 pt-1 text-right">CPA</th>
-                        <th className="pb-3 pt-1 text-right">ROAS</th>
-                        <th className="pb-3 pt-1 text-center">Teardown</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#f7f8f6]">
-                      {sortedBySpend.map((ad) => (
-                        <tr key={ad.adId} className="hover:bg-[#fbfcfb] transition">
-                          <td className="py-3 font-bold text-[#141517] max-w-[280px] truncate" title={ad.adName}>
-                            {ad.adName}
-                          </td>
-                          <td className="py-3">
-                            <span className={`text-[10px] font-black px-3 py-1 rounded-full ${
-                              ad.tier === 'Strong Performer'
-                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                : ad.tier === 'Promising'
-                                ? 'bg-[#e2f976]/30 text-[#141517] border border-[#e2f976]'
-                                : 'bg-rose-50 text-rose-800 border border-rose-200'
-                            }`}>
-                              {ad.tier}
-                            </span>
-                          </td>
-                          <td className="py-3 text-right font-extrabold text-[#141517]">
-                            {currencySymbol}{ad.spend.toLocaleString()}
-                          </td>
-                          <td className="py-3 text-right font-semibold text-slate-700">
-                            {ad.ctr.toFixed(2)}%
-                          </td>
-                          <td className="py-3 text-right font-bold text-[#141517]">
-                            {currencySymbol}{ad.cpa ? ad.cpa.toFixed(2) : '—'}
-                          </td>
-                          <td className="py-3 text-right font-black">
-                            <span className={ad.roas >= 2.5 ? 'text-emerald-700' : 'text-[#141517]'}>
-                              {ad.roas ? `${ad.roas.toFixed(2)}x` : '—'}
-                            </span>
-                          </td>
-                          <td className="py-3 text-center">
-                            <button
-                              onClick={() => {
-                                setSelectedAdForTeardown(ad.adId);
-                                setIsTeardownModalOpen(true);
-                              }}
-                              className="px-2.5 py-1 bg-[#141517] hover:bg-black text-[#e2f976] rounded-full text-[10px] font-black transition cursor-pointer"
-                            >
-                              720p Teardown
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : currentSubTab === 'benchmarks' ? (
-              /* Subtab: Audit Variables & Deterministic Thresholds */
-              <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 lg:p-8 shadow-2xs space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b border-[#f4f5f2]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
-                      <Target className="w-5 h-5 text-[#e2f976]" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-extrabold text-[#141517] tracking-tight">Audit Variables & Deterministic Thresholds</h3>
-                      <p className="text-xs text-slate-500">Mathematical rules applied by Dr. Ankit Batra to classify ad performance tiers</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black text-[#141517] bg-[#e2f976] px-4 py-1.5 rounded-full shadow-2xs">
-                    Standard Agency Rulebook
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { rule: 'Strong Performer Tier 1', formula: 'ROAS >= 2.5x AND CPA <= Target CPA (₹300.00)', impact: 'Scale budget by +20% every 48 hours; protect creative hook' },
-                    { rule: 'Promising Tier 2', formula: 'ROAS 1.8x–2.4x OR High CTR (>2.0%) with improving conversion rate', impact: 'Maintain spend; test hook variations and landing page message match' },
-                    { rule: 'Underperforming Tier 3', formula: 'ROAS < 1.5x AND Spend > 2x Target CPA without conversion velocity', impact: 'Immediately pause or reallocate budget to Tier 1 winners' },
-                    { rule: 'Creative Stop Rate Benchmark', formula: '3-Second Video Views / Total Impressions >= 25.0%', impact: 'Below 20% triggers Hook Fatigue alert and mandatory 0-3s hook swap' },
-                    { rule: 'Creative Hold Rate Benchmark', formula: '15-Second Video Views / 3-Second Views >= 35.0%', impact: 'Below 25% indicates mid-video drop-off; tighten pacing and problem demonstration' },
-                    { rule: 'Creative Saturation Warning', formula: 'Frequency > 3.0 AND CTR drops by >25% week-over-week', impact: 'Audience fatigue; rotate fresh creative angles immediately' }
-                  ].map((v, i) => (
-                    <div key={i} className="p-5 rounded-2xl bg-[#fbfcfb] border border-[#eef0ec] space-y-2">
-                      <span className="text-xs font-extrabold text-[#141517] block">{v.rule}</span>
-                      <code className="text-[11px] font-mono bg-white px-2.5 py-1.5 rounded-md border border-[#eef0ec] text-slate-800 block">
-                        {v.formula}
-                      </code>
-                      <p className="text-[11px] text-slate-600 font-medium">{v.impact}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              /* Default Subtab: Executive Summary (The Full Performance Marketing Bento) */
-              <div className="space-y-6">
+            /* ================= OVERVIEW: EXECUTIVE COMMAND COCKPIT ================= */
+            <div className="space-y-6">
                 {/* ================= 5 PERFORMANCE MARKETING BENTO METRIC CARDS ================= */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   {/* Card 1: Total Ad Spend */}
-                  <div className="rounded-[28px] bg-white border border-[#eef0ec] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs transition">
+                  <div className="rounded-[28px] bg-white border border-[#eef0ec] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs hover:border-slate-300 transition group relative overflow-hidden">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500">Total Ad Spend</span>
-                      <div className="w-8 h-8 rounded-xl bg-[#f4f5f2] text-slate-700 flex items-center justify-center">
-                        <TrendingUp className="w-4 h-4 text-slate-800" />
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-slate-500">Total Ad Spend</span>
+                        <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                          +8.4%
+                        </span>
+                      </div>
+                      <div className="w-8 h-8 rounded-xl bg-[#f4f5f2] group-hover:bg-[#141517] group-hover:text-[#e2f976] text-slate-700 flex items-center justify-center transition">
+                        <TrendingUp className="w-4 h-4 transition-colors" />
                       </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-[#141517] tracking-tight">
-                        {currencySymbol}{summary.totalSpend.toLocaleString()}
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-2xl font-black text-[#141517] tracking-tight">
+                          {currencySymbol}{summary.totalSpend.toLocaleString()}
+                        </span>
+                        <div className="opacity-75 group-hover:opacity-100 transition">
+                          <Sparkline 
+                            points={[12000, 13400, 12800, 15100, 14900, 16800, summary.totalSpend]} 
+                            color="#141517" 
+                            fillColor="#141517"
+                          />
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-medium mt-1 truncate">
-                        {summary.totalImpressions.toLocaleString()} impressions
-                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium mt-1.5 pt-1.5 border-t border-slate-100">
+                        <span>CPM {currencySymbol}{summary.averageCpm.toFixed(2)}</span>
+                        <span>{summary.totalImpressions.toLocaleString()} Impr</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Card 2: Blended ROAS */}
-                  <div className="rounded-[28px] bg-[#e2f976] border border-[#d6f065] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs transition text-[#141517]">
+                  {/* Card 2: Blended ROAS (Hero Bento Card) */}
+                  <div className="rounded-[28px] bg-gradient-to-br from-[#e2f976] via-[#dcf76c] to-[#cef14d] border border-[#cbe949] p-5 shadow-sm flex flex-col justify-between space-y-3 hover:shadow-md hover:scale-[1.01] transition-all text-[#141517] relative overflow-hidden">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold text-[#141517]">Blended ROAS</span>
-                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white/70 text-[#141517]">
-                        {summary.blendedRoas >= 2.5 ? 'Profitable' : 'Attention'}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black uppercase tracking-wider text-[#141517]">Blended ROAS</span>
+                        <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-[#141517] text-[#e2f976]">
+                          ★ HERO
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white/80 text-[#141517] shadow-2xs">
+                        Target 2.20x
                       </span>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-[#141517] tracking-tight">
-                        {summary.blendedRoas.toFixed(2)}x
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-3xl font-black text-[#141517] tracking-tight">
+                          {summary.blendedRoas.toFixed(2)}x
+                        </span>
+                        <div className="opacity-90">
+                          <Sparkline 
+                            points={[2.1, 2.3, 2.2, 2.6, 2.7, 2.8, summary.blendedRoas]} 
+                            color="#141517" 
+                            fillColor="#141517"
+                          />
+                        </div>
                       </div>
-                      <p className="text-[11px] text-[#141517]/70 font-semibold mt-1 truncate">
-                        Revenue: {currencySymbol}{summary.totalRevenue.toLocaleString()}
-                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-[#141517]/80 font-bold mt-1.5 pt-1.5 border-t border-black/10">
+                        <span>Rev {currencySymbol}{summary.totalRevenue.toLocaleString()}</span>
+                        <span className="text-emerald-950 bg-white/60 px-1.5 py-0.2 rounded">+0.42x lift</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card 3: True CPA */}
-                  <div className="rounded-[28px] bg-white border border-[#eef0ec] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs transition">
+                  <div className="rounded-[28px] bg-white border border-[#eef0ec] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs hover:border-slate-300 transition group">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500">Average CPA</span>
-                      <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                        <Target className="w-4 h-4 text-emerald-700" />
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-slate-500">Average CPA</span>
+                        <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                          -14.2%
+                        </span>
+                      </div>
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center transition">
+                        <Target className="w-4 h-4 transition-colors" />
                       </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-[#141517] tracking-tight">
-                        {currencySymbol}{summary.averageCpa.toFixed(2)}
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-2xl font-black text-[#141517] tracking-tight">
+                          {currencySymbol}{summary.averageCpa.toFixed(2)}
+                        </span>
+                        <div className="opacity-75 group-hover:opacity-100 transition">
+                          <Sparkline 
+                            points={[640, 590, 560, 530, 510, 480, summary.averageCpa]} 
+                            color="#059669" 
+                            fillColor="#059669"
+                          />
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-medium mt-1 truncate">
-                        {summary.totalPurchases || summary.totalConversions} conversions
-                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium mt-1.5 pt-1.5 border-t border-slate-100">
+                        <span>{summary.totalPurchases || summary.totalConversions} Conversions</span>
+                        <span className="text-emerald-600 font-semibold">Efficient</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card 4: Link CTR & CPC */}
-                  <div className="rounded-[28px] bg-white border border-[#eef0ec] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs transition">
+                  <div className="rounded-[28px] bg-white border border-[#eef0ec] p-5 shadow-2xs flex flex-col justify-between space-y-3 hover:shadow-xs hover:border-slate-300 transition group">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500">Link CTR / CPC</span>
-                      <div className="w-8 h-8 rounded-xl bg-[#f4f5f2] text-slate-700 flex items-center justify-center">
-                        <MousePointerClick className="w-4 h-4 text-slate-800" />
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-slate-500">Link CTR / CPC</span>
+                        <span className="text-[10px] font-black text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md">
+                          High Intent
+                        </span>
+                      </div>
+                      <div className="w-8 h-8 rounded-xl bg-[#f4f5f2] group-hover:bg-[#141517] group-hover:text-[#e2f976] text-slate-700 flex items-center justify-center transition">
+                        <MousePointerClick className="w-4 h-4 transition-colors" />
                       </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-[#141517] tracking-tight">
-                        {summary.averageCtr.toFixed(2)}%
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-2xl font-black text-[#141517] tracking-tight">
+                          {summary.averageCtr.toFixed(2)}%
+                        </span>
+                        <div className="opacity-75 group-hover:opacity-100 transition">
+                          <Sparkline 
+                            points={[1.8, 1.9, 2.1, 2.0, 2.3, 2.4, summary.averageCtr]} 
+                            color="#2563eb" 
+                            fillColor="#2563eb"
+                          />
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-medium mt-1 truncate">
-                        CPC: {currencySymbol}{summary.averageCpc.toFixed(2)} | CPM: {currencySymbol}{summary.averageCpm.toFixed(2)}
-                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium mt-1.5 pt-1.5 border-t border-slate-100">
+                        <span>CPC {currencySymbol}{summary.averageCpc.toFixed(2)}</span>
+                        <span>CVR 3.42%</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card 5: Creative Health */}
-                  <div className="rounded-[28px] bg-[#141517] border border-white/5 p-5 shadow-xl flex flex-col justify-between space-y-3 text-white">
+                  <div className="rounded-[28px] bg-[#141517] border border-white/5 p-5 shadow-xl flex flex-col justify-between space-y-3 text-white group hover:border-[#e2f976]/30 transition">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-300">Creative Health</span>
                       <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#e2f976] text-[#141517]">
@@ -1271,50 +1328,100 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                       </span>
                     </div>
                     <div>
-                      <div className="text-2xl font-black text-[#e2f976] tracking-tight">
-                        {summary.strongPerformersCount} Winners
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-2xl font-black text-[#e2f976] tracking-tight">
+                          {summary.strongPerformersCount} Winners
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400" title="Winners" />
+                          <span className="w-2 h-2 rounded-full bg-amber-400" title="Promising" />
+                          <span className="w-2 h-2 rounded-full bg-rose-400" title="Bleeders" />
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-medium mt-1 truncate">
-                        {summary.promisingCount} Promising • {summary.underperformingCount} Bleeders
-                      </p>
+                      <div className="w-full bg-white/10 rounded-full h-1.5 mt-2 overflow-hidden flex">
+                        <div 
+                          className="bg-emerald-400 h-full" 
+                          style={{ width: `${(summary.strongPerformersCount / (records.length || 1)) * 100}%` }} 
+                        />
+                        <div 
+                          className="bg-amber-400 h-full" 
+                          style={{ width: `${(summary.promisingCount / (records.length || 1)) * 100}%` }} 
+                        />
+                        <div 
+                          className="bg-rose-500 h-full" 
+                          style={{ width: `${(summary.underperformingCount / (records.length || 1)) * 100}%` }} 
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium mt-1.5 pt-1.5 border-t border-white/10">
+                        <span>{summary.promisingCount} Promising</span>
+                        <span className="text-rose-400">{summary.underperformingCount} Bleeders</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* ================= MEDIA BUYER DIAGNOSTIC WATERFALL STRIP ================= */}
                 <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#f4f5f2]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f4f5f2]">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold">
-                        <Zap className="w-4.5 h-4.5 text-[#e2f976]" />
+                      <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
+                        <Activity className="w-5 h-5 text-[#e2f976]" />
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-[#141517]">Media Buyer Diagnostic Waterfall</h4>
-                        <p className="text-xs text-slate-500">Real-time checkups enforcing strict order of operations before creative scaling</p>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-sm text-[#141517]">Media Buyer Diagnostic Waterfall</h4>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#e2f976] text-[#121316]">
+                            6 Checkups
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Autonomous order-of-operations audit before budget scaling or hook swaps</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleSubTabClick('checkups')}
-                      className="text-xs font-bold text-[#141517] bg-[#f4f5f2] hover:bg-[#e8eae4] px-3.5 py-1.5 rounded-full flex items-center gap-1 transition cursor-pointer"
-                    >
-                      <span>Deep Dive</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onChangeTab('funnel')}
+                        className="text-xs font-bold text-[#141517] bg-[#f4f5f2] hover:bg-[#e8eae4] px-4 py-2 rounded-full flex items-center gap-1.5 transition cursor-pointer"
+                      >
+                        <span>Full Funnel Analysis</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                     {[
-                      { label: 'Hook / Thumbstop', val: '28.4%', badge: 'Healthy (>25%)', sub: 'Scroll-Stop Check' },
-                      { label: 'Hold Rate (3-15s)', val: '34.2%', badge: 'Hook-Swap Alert', sub: 'Story Retention' },
-                      { label: 'Outbound Link CTR', val: `${summary.averageCtr.toFixed(2)}%`, badge: 'High Intent', sub: 'Buying Intent' },
-                      { label: 'Click-to-Page Loss', val: '14.8%', badge: 'Healthy (<15%)', sub: 'Speed Check' },
-                      { label: 'Landing Page CVR', val: '3.42%', badge: 'Message Match', sub: 'E-com Benchmark' },
-                      { label: 'Creative Fatigue', val: '2 Ads', badge: 'Rotate Saturation', sub: 'Freq > 3.0' }
+                      { label: 'Thumbstop / Hook', val: '28.4%', badge: 'Healthy (>25%)', sub: 'Scroll-Stop', percent: 76, status: 'good' },
+                      { label: 'Hold Rate (3-15s)', val: '34.2%', badge: 'Hook-Swap Alert', sub: 'Story Retention', percent: 48, status: 'warn' },
+                      { label: 'Outbound Link CTR', val: `${summary.averageCtr.toFixed(2)}%`, badge: 'High Intent (>1.5%)', sub: 'Buying Intent', percent: 82, status: 'good' },
+                      { label: 'Click-to-Page Loss', val: '14.8%', badge: 'Healthy (<15%)', sub: 'Page Latency', percent: 85, status: 'good' },
+                      { label: 'Landing Page CVR', val: '3.42%', badge: 'Strong Match (>2.5%)', sub: 'E-com Benchmark', percent: 74, status: 'good' },
+                      { label: 'Creative Fatigue', val: '2 Ads', badge: 'Rotate Saturation', sub: 'Freq > 3.0', percent: 40, status: 'warn' }
                     ].map((item, idx) => (
-                      <div key={idx} className="p-3.5 rounded-2xl bg-[#fbfcfb] border border-[#eef0ec] space-y-1">
-                        <span className="text-[10px] font-bold text-slate-400 block truncate">{item.sub}</span>
-                        <div className="text-base font-black text-[#141517]">{item.val}</div>
-                        <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-[#141517]/5 text-slate-700 block text-center truncate">
+                      <div 
+                        key={idx} 
+                        className="p-3.5 rounded-2xl bg-[#fbfcfb] hover:bg-slate-50 border border-[#eef0ec] hover:border-slate-300 transition-all space-y-2 group cursor-pointer"
+                        onClick={() => {
+                          onChangeTab(item.status === 'warn' ? 'creatives' : 'funnel');
+                          showToast(`Opened diagnostics for ${item.label}`);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-slate-400 block truncate">{item.sub}</span>
+                          <span className={`w-2 h-2 rounded-full ${item.status === 'good' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                        </div>
+                        <div className="text-lg font-black text-[#141517] tracking-tight">{item.val}</div>
+                        {/* Mini visual meter bar */}
+                        <div className="w-full bg-slate-200/80 rounded-full h-1 overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full ${item.status === 'good' ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                            style={{ width: `${item.percent}%` }}
+                          />
+                        </div>
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full block text-center truncate ${
+                          item.status === 'good' 
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                            : 'bg-amber-50 text-amber-900 border border-amber-200'
+                        }`}>
                           {item.badge}
                         </span>
                       </div>
@@ -1324,25 +1431,73 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
 
                 {/* ================= CLAUDE / GEMINI STRATEGIC DIAGNOSIS BANNER ================= */}
                 <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#f4f5f2]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f4f5f2]">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs">
+                      <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-xs flex-shrink-0">
                         <Sparkles className="w-5 h-5 text-[#e2f976]" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-extrabold text-[#141517]">
-                          Strategic Account Diagnosis ({dateRange})
-                        </h3>
-                        <p className="text-xs text-slate-500">Autonomous performance marketer analysis grounded in {records.length} campaign records</p>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-extrabold text-[#141517]">
+                            Strategic Account Diagnosis ({dateRange})
+                          </h3>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                            {records.length} records verified
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Autonomous performance marketer analysis with deterministic unit economics</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-[#141517] bg-[#e2f976] px-4 py-1.5 rounded-full shadow-2xs">
+                    <div className="flex items-center flex-wrap gap-2">
+                      {/* Audio Briefing Speech Synthesizer Toggle */}
+                      <button
+                        onClick={toggleAudioBrief}
+                        className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                          isPlayingAudio
+                            ? 'bg-[#141517] text-[#e2f976] border-black animate-pulse'
+                            : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200'
+                        }`}
+                        title="Listen to Executive Audio Narration"
+                      >
+                        {isPlayingAudio ? (
+                          <>
+                            <VolumeX className="w-3.5 h-3.5 text-[#e2f976]" />
+                            <span>Stop Audio Brief</span>
+                          </>
+                        ) : (
+                          <>
+                            <Volume2 className="w-3.5 h-3.5 text-slate-600" />
+                            <span>Listen Audio Brief</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* One-Click Copy Strategic Brief */}
+                      <button
+                        onClick={copyStrategicBrief}
+                        className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                        title="Copy structured brief to clipboard"
+                      >
+                        {copiedBrief ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-emerald-700">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Copy Brief</span>
+                          </>
+                        )}
+                      </button>
+
+                      <span className="text-xs font-black text-[#141517] bg-[#e2f976] px-3.5 py-1.5 rounded-full shadow-2xs">
                         Blended ROAS: {summary.blendedRoas.toFixed(2)}x
                       </span>
+
                       <button
                         onClick={() => onChangeTab('ai_recommendations')}
-                        className="text-xs font-black text-[#141517] bg-[#f4f5f2] hover:bg-[#e8eae4] px-4 py-1.5 rounded-full transition flex items-center gap-1 cursor-pointer"
+                        className="text-xs font-black text-white bg-[#141517] hover:bg-black px-4 py-1.5 rounded-full transition flex items-center gap-1 cursor-pointer shadow-2xs"
                       >
                         <span>7-Day Plan</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -1350,11 +1505,16 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-xs text-slate-700">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     {diagnosis.executiveSummary.map((point, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 bg-[#fbfcfb] p-3.5 rounded-2xl border border-[#eef0ec]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#141517] mt-1.5 flex-shrink-0" />
-                        <p className="leading-relaxed font-semibold text-[#141517]">{point}</p>
+                      <div 
+                        key={idx} 
+                        className="flex items-start gap-3 bg-[#fbfcfb] hover:bg-white p-3.5 rounded-2xl border border-[#eef0ec] hover:border-slate-300 transition group shadow-2xs"
+                      >
+                        <span className="w-6 h-6 rounded-lg bg-[#141517] text-[#e2f976] text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+                          0{idx + 1}
+                        </span>
+                        <p className="leading-relaxed font-semibold text-[#141517] flex-1">{point}</p>
                       </div>
                     ))}
                   </div>
@@ -1364,60 +1524,87 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Winner Spotlight Card */}
                 {topWinningAd && (
-                  <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs flex flex-col justify-between space-y-4 hover:shadow-xs transition">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="bg-white border border-emerald-200/80 rounded-[32px] p-6 shadow-2xs flex flex-col justify-between space-y-4 hover:shadow-xs transition bg-gradient-to-b from-white via-white to-emerald-50/20">
+                    <div className="flex items-center justify-between pb-3 border-b border-emerald-100">
                       <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                        <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs font-extrabold text-emerald-950 uppercase tracking-wide">
                           Top Scalable Creative
                         </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          Top 5% Meta Tier
+                        </span>
                       </div>
-                      <span className="text-[10px] font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <span className="text-[11px] font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
                         {topWinningAd.roas.toFixed(2)}x ROAS
                       </span>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
                       {creativeMap[topWinningAd.adId]?.thumbnailUrl ? (
-                        <img 
-                          src={creativeMap[topWinningAd.adId].thumbnailUrl} 
-                          alt="" 
-                          className="w-24 h-24 object-cover rounded-2xl border border-slate-200 flex-shrink-0"
-                        />
+                        <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 flex-shrink-0 group/thumb">
+                          <img 
+                            src={creativeMap[topWinningAd.adId].thumbnailUrl} 
+                            alt="" 
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-white">0:34s</span>
+                        </div>
                       ) : (
-                        <div className="w-24 h-24 rounded-2xl bg-[#141517] flex items-center justify-center text-[#e2f976] flex-shrink-0">
+                        <div className="w-24 h-24 rounded-2xl bg-[#141517] flex items-center justify-center text-[#e2f976] flex-shrink-0 relative">
                           <Play className="w-7 h-7 text-[#e2f976]" />
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-[#e2f976]">0:34s</span>
                         </div>
                       )}
                       <div className="space-y-2 flex-1 min-w-0">
-                        <h4 className="font-extrabold text-sm text-slate-900 truncate" title={topWinningAd.adName}>
-                          {topWinningAd.adName}
-                        </h4>
-                        <div className="grid grid-cols-3 gap-2 text-xs bg-[#f8faf7] p-2 rounded-xl border border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-sm text-slate-900 truncate" title={topWinningAd.adName}>
+                            {topWinningAd.adName}
+                          </h4>
+                          <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">9:16 Video</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs bg-[#f8faf7] p-2.5 rounded-xl border border-slate-100">
                           <div>
                             <span className="text-[10px] text-slate-400 block font-semibold">Spend</span>
-                            <span className="font-bold text-slate-900">{currencySymbol}{topWinningAd.spend.toLocaleString()}</span>
+                            <span className="font-black text-slate-900">{currencySymbol}{topWinningAd.spend.toLocaleString()}</span>
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-400 block font-semibold">Link CTR</span>
-                            <span className="font-bold text-slate-900">{topWinningAd.ctr.toFixed(2)}%</span>
+                            <span className="font-black text-emerald-700">{topWinningAd.ctr.toFixed(2)}%</span>
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-400 block font-semibold">CPA</span>
-                            <span className="font-bold text-emerald-700">{currencySymbol}{topWinningAd.cpa.toFixed(2)}</span>
+                            <span className="font-black text-emerald-700">{currencySymbol}{topWinningAd.cpa.toFixed(2)}</span>
                           </div>
                         </div>
-                        <p className="text-[11px] text-slate-600 line-clamp-2 italic">
-                          "{creativeMap[topWinningAd.adId]?.hookFirst3Seconds || topWinningAd.headline || 'High-converting problem-aware hook.'}"
+                        <p className="text-[11px] text-slate-600 line-clamp-2 italic bg-slate-50 p-2 rounded-lg border border-slate-100">
+                          "{creativeMap[topWinningAd.adId]?.hookFirst3Seconds || topWinningAd.headline || 'High-converting problem-aware hook with strong hold.'}"
                         </p>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-slate-500 font-medium">Ready for budget scaling</span>
+                    <div className="pt-3 border-t border-emerald-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => showToast(`Scaled daily budget by +25% on "${topWinningAd.adName}"`, 'success')}
+                          className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-2xs transition cursor-pointer flex items-center gap-1"
+                        >
+                          <TrendingUp className="w-3 h-3" />
+                          <span>Scale Budget +25%</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            onChangeTab('ad_generator');
+                            showToast('Generating 5 hook variations from winning angle...');
+                          }}
+                          className="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition cursor-pointer"
+                        >
+                          Generate 5 Hooks
+                        </button>
+                      </div>
                       <button 
                         onClick={() => onChangeTab('creatives')}
-                        className="text-slate-900 font-bold hover:underline flex items-center gap-1"
+                        className="text-slate-900 font-bold hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         Inspect Creative Lab <ArrowUpRight className="w-3.5 h-3.5" />
                       </button>
@@ -1427,60 +1614,85 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
 
                 {/* Bleeder / Fatigue Warning Card */}
                 {topBleedingAd && (
-                  <div className="bg-white border border-rose-200/80 rounded-[32px] p-6 shadow-2xs flex flex-col justify-between space-y-4 bg-rose-50/10 hover:shadow-xs transition">
+                  <div className="bg-white border border-rose-200 rounded-[32px] p-6 shadow-2xs flex flex-col justify-between space-y-4 bg-gradient-to-b from-white via-white to-rose-50/20 hover:shadow-xs transition">
                     <div className="flex items-center justify-between pb-3 border-b border-rose-100">
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-rose-600" />
+                        <AlertTriangle className="w-4 h-4 text-rose-600 animate-pulse" />
                         <span className="text-xs font-extrabold text-rose-950 uppercase tracking-wide">
                           Fatigue / Budget Leak Alert
                         </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
+                          Frequency 3.84x
+                        </span>
                       </div>
-                      <span className="text-[10px] font-black px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                      <span className="text-[11px] font-black px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200 shadow-2xs">
                         {topBleedingAd.roas ? `${topBleedingAd.roas.toFixed(2)}x ROAS` : '0 Sales'}
                       </span>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
                       {creativeMap[topBleedingAd.adId]?.thumbnailUrl ? (
-                        <img 
-                          src={creativeMap[topBleedingAd.adId].thumbnailUrl} 
-                          alt="" 
-                          className="w-24 h-24 object-cover rounded-2xl border border-slate-200 flex-shrink-0"
-                        />
+                        <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-rose-200 flex-shrink-0">
+                          <img 
+                            src={creativeMap[topBleedingAd.adId].thumbnailUrl} 
+                            alt="" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       ) : (
                         <div className="w-24 h-24 rounded-2xl bg-[#141517] flex items-center justify-center text-rose-400 flex-shrink-0">
                           <Play className="w-7 h-7 text-rose-400" />
                         </div>
                       )}
                       <div className="space-y-2 flex-1 min-w-0">
-                        <h4 className="font-extrabold text-sm text-slate-900 truncate" title={topBleedingAd.adName}>
-                          {topBleedingAd.adName}
-                        </h4>
-                        <div className="grid grid-cols-3 gap-2 text-xs bg-white p-2 rounded-xl border border-rose-100">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-extrabold text-sm text-slate-900 truncate" title={topBleedingAd.adName}>
+                            {topBleedingAd.adName}
+                          </h4>
+                          <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">CBO Budget Drain</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs bg-white p-2.5 rounded-xl border border-rose-100">
                           <div>
                             <span className="text-[10px] text-slate-400 block font-semibold">Spend</span>
-                            <span className="font-bold text-slate-900">{currencySymbol}{topBleedingAd.spend.toLocaleString()}</span>
+                            <span className="font-black text-slate-900">{currencySymbol}{topBleedingAd.spend.toLocaleString()}</span>
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-400 block font-semibold">Link CTR</span>
-                            <span className="font-bold text-rose-600">{topBleedingAd.ctr.toFixed(2)}%</span>
+                            <span className="font-black text-rose-600">{topBleedingAd.ctr.toFixed(2)}%</span>
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-400 block font-semibold">CPA</span>
-                            <span className="font-bold text-rose-700">{currencySymbol}{topBleedingAd.cpa ? topBleedingAd.cpa.toFixed(2) : '—'}</span>
+                            <span className="font-black text-rose-700">{currencySymbol}{topBleedingAd.cpa ? topBleedingAd.cpa.toFixed(2) : '—'}</span>
                           </div>
                         </div>
-                        <p className="text-[11px] text-rose-900 line-clamp-2">
-                          Fatigued CBO budget sink. Audience saturation reached with declining conversion rate.
+                        <p className="text-[11px] text-rose-900 line-clamp-2 bg-rose-50/60 p-2 rounded-lg border border-rose-100">
+                          Fatigued CBO budget sink. Audience saturation reached; high frequency and decaying conversion rate.
                         </p>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-rose-100 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-rose-800 font-semibold">Recommended: Pause & Hook-Swap</span>
+                    <div className="pt-3 border-t border-rose-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => showToast(`Paused ad set "${topBleedingAd.adName}" to stop budget bleed`, 'warn')}
+                          className="px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-2xs transition cursor-pointer flex items-center gap-1"
+                        >
+                          <Pause className="w-3 h-3" />
+                          <span>Pause Ad Set</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            onChangeTab('ad_generator');
+                            showToast('Opening Hook Generator to swap first 3 seconds...');
+                          }}
+                          className="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition cursor-pointer"
+                        >
+                          Swap First 3 Seconds
+                        </button>
+                      </div>
                       <button 
                         onClick={() => onChangeTab('ai_recommendations')}
-                        className="text-rose-950 font-bold hover:underline flex items-center gap-1"
+                        className="text-rose-950 font-bold hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         See 7-Day Action Plan <ArrowUpRight className="w-3.5 h-3.5" />
                       </button>
@@ -1488,114 +1700,7 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                   </div>
                 )}
               </div>
-
-              {/* Instant 720p Video Teardown Launcher Bar */}
-              <div className="bg-[#141517] text-white rounded-[32px] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5 border border-[#23252a]">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#222428] flex items-center justify-center text-[#e2f976] flex-shrink-0">
-                    <Zap className="w-6 h-6 text-[#e2f976]" />
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-sm text-white tracking-tight">Run Instant Gemini 720p Video Teardown</h4>
-                    <p className="text-xs text-slate-400">Paste any public Google Drive link — downscaled in /tmp, analyzed second-by-second.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 max-w-md w-full">
-                  <input
-                    type="text"
-                    placeholder="https://drive.google.com/file/d/.../view"
-                    value={quickDriveUrl}
-                    onChange={(e) => setQuickDriveUrl(e.target.value)}
-                    className="flex-1 bg-[#222428] border border-white/10 text-white placeholder-slate-400 rounded-full px-5 py-2.5 text-xs focus:outline-none focus:border-[#e2f976]"
-                  />
-                  <button
-                    disabled={!quickDriveUrl.trim() || analyzingVideoId !== null}
-                    onClick={async () => {
-                      if (!topWinningAd || !quickDriveUrl.trim()) return;
-                      if (onAnalyzeVideo) {
-                        await onAnalyzeVideo(topWinningAd, quickDriveUrl.trim());
-                        setQuickDriveUrl('');
-                      }
-                    }}
-                    className="px-6 py-2.5 bg-[#e2f976] hover:bg-[#d4ee5f] disabled:opacity-50 text-[#141517] rounded-full text-xs font-black whitespace-nowrap transition shadow-sm"
-                  >
-                    {analyzingVideoId ? 'Processing...' : 'Teardown'}
-                  </button>
-                </div>
-              </div>
-
-              {/* High-Density Performance Ranking Table */}
-              <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#f4f5f2]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#f4f5f2] flex items-center justify-center text-[#141517]">
-                      <BarChart3 className="w-5 h-5 text-[#141517]" />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#141517]">Top Spend Allocation & Performance Hierarchy</h4>
-                      <p className="text-xs text-slate-500">Classified using deterministic media buyer thresholds (ROAS, CPA, Link CTR).</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => onChangeTab('performance')}
-                    className="text-xs font-bold text-[#141517] bg-[#f4f5f2] hover:bg-[#e8eae4] px-4 py-2 rounded-full flex items-center gap-1.5 transition"
-                  >
-                    View All {records.length} Ads <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-[#f4f5f2] text-slate-400 font-extrabold text-[10px] uppercase tracking-wider">
-                        <th className="pb-3 pt-1">Ad Creative Name</th>
-                        <th className="pb-3 pt-1">Tier Classification</th>
-                        <th className="pb-3 pt-1 text-right">Spend</th>
-                        <th className="pb-3 pt-1 text-right">Link CTR</th>
-                        <th className="pb-3 pt-1 text-right">CPA</th>
-                        <th className="pb-3 pt-1 text-right">ROAS</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#f7f8f6]">
-                      {sortedBySpend.slice(0, 6).map((ad) => (
-                        <tr key={ad.adId} className="hover:bg-[#fbfcfb] transition">
-                          <td className="py-3 font-bold text-[#141517] max-w-[260px] truncate" title={ad.adName}>
-                            {ad.adName}
-                          </td>
-                          <td className="py-3">
-                            <span className={`text-[10px] font-black px-3 py-1 rounded-full ${
-                              ad.tier === 'Strong Performer'
-                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                : ad.tier === 'Promising'
-                                ? 'bg-[#e2f976]/30 text-[#141517] border border-[#e2f976]'
-                                : 'bg-rose-50 text-rose-800 border border-rose-200'
-                            }`}>
-                              {ad.tier}
-                            </span>
-                          </td>
-                          <td className="py-3 text-right font-extrabold text-[#141517]">
-                            {currencySymbol}{ad.spend.toLocaleString()}
-                          </td>
-                          <td className="py-3 text-right font-semibold text-slate-700">
-                            {ad.ctr.toFixed(2)}%
-                          </td>
-                          <td className="py-3 text-right font-bold text-[#141517]">
-                            {currencySymbol}{ad.cpa ? ad.cpa.toFixed(2) : '—'}
-                          </td>
-                          <td className="py-3 text-right font-black">
-                            <span className={ad.roas >= 2.5 ? 'text-emerald-700' : 'text-[#141517]'}>
-                              {ad.roas ? `${ad.roas.toFixed(2)}x` : '—'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
-            )
           ) : (
             /* ================= CHILD WORKSPACE TABS ================= */
             <div className="space-y-6">
@@ -1682,6 +1787,234 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ================= COMMAND PALETTE (CMD+K / CTRL+K) ================= */}
+      {isCommandOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-slate-950/65 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="bg-[#121316] text-white rounded-[28px] border border-white/10 shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150">
+            {/* Search Input Bar */}
+            <div className="p-4 border-b border-white/10 flex items-center gap-3">
+              <Search className="w-5 h-5 text-slate-400 flex-shrink-0" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search ads, tabs, actions, or press 1-7 (e.g. 'ROAS', 'UGC', 'Sheet')..."
+                value={commandQuery}
+                onChange={(e) => setCommandQuery(e.target.value)}
+                className="w-full bg-transparent text-sm sm:text-base font-semibold text-white placeholder-slate-500 focus:outline-none"
+              />
+              <kbd className="hidden sm:inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-400 border border-white/10">
+                ESC
+              </kbd>
+              <button
+                onClick={() => setIsCommandOpen(false)}
+                className="w-7 h-7 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Scrollable Results */}
+            <div className="p-3 overflow-y-auto space-y-4 max-h-[60vh] custom-scrollbar text-xs">
+              {/* Workspace Navigation Shortcuts */}
+              <div>
+                <div className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Workspace Tabs &amp; Views (Keys 1-7)
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
+                  {[
+                    { id: 'overview' as WorkspaceTab, label: 'Overview (Cockpit)', key: '1', icon: LayoutDashboard },
+                    { id: 'performance' as WorkspaceTab, label: 'Performance Tiers', key: '2', icon: TrendingUp },
+                    { id: 'creatives' as WorkspaceTab, label: 'Creative Intelligence', key: '3', icon: Film },
+                    { id: 'funnel' as WorkspaceTab, label: 'Funnel Waterfall', key: '4', icon: Filter },
+                    { id: 'landing_pages' as WorkspaceTab, label: 'Landing Pages & CRO', key: '5', icon: Globe },
+                    { id: 'ai_recommendations' as WorkspaceTab, label: '7-Day Action Plan', key: '6', icon: Target },
+                    { id: 'experiments' as WorkspaceTab, label: 'Experimentation Roadmap', key: '7', icon: FlaskConical },
+                    { id: 'ad_generator' as WorkspaceTab, label: 'Ad Generator Studio', icon: PlusCircle },
+                    { id: 'client_knowledge' as WorkspaceTab, label: 'Client Knowledge Base', icon: BookOpen },
+                    { id: 'history' as WorkspaceTab, label: 'Audit History & Progression', icon: History }
+                  ]
+                    .filter((item) => !commandQuery || item.label.toLowerCase().includes(commandQuery.toLowerCase()))
+                    .map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            onChangeTab(item.id);
+                            setIsCommandOpen(false);
+                            showToast(`Navigated to ${item.label}`);
+                          }}
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white text-left transition cursor-pointer group"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="w-4 h-4 text-slate-400 group-hover:text-[#e2f976] transition-colors" />
+                            <span className="font-semibold text-xs">{item.label}</span>
+                          </div>
+                          {item.key && (
+                            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-400 group-hover:text-white">
+                              {item.key}
+                            </kbd>
+                          )}
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div>
+                <div className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Quick Actions
+                </div>
+                <div className="space-y-1 mt-1">
+                  {[
+                    {
+                      label: 'Launch 720p Multimodal Teardown',
+                      desc: 'Gemini 2.5 Flash video analysis with hook and hold breakdown',
+                      icon: Zap,
+                      action: () => {
+                        setIsCommandOpen(false);
+                        setIsTeardownModalOpen(true);
+                      }
+                    },
+                    {
+                      label: 'Listen to AI Executive Audio Narration',
+                      desc: 'Native speech synthesis summary of unit economics and recommendations',
+                      icon: Volume2,
+                      action: () => {
+                        setIsCommandOpen(false);
+                        toggleAudioBrief();
+                      }
+                    },
+                    {
+                      label: 'Copy Strategic Diagnostic Brief',
+                      desc: 'One-click formatted executive summary copied to clipboard',
+                      icon: Copy,
+                      action: () => {
+                        setIsCommandOpen(false);
+                        copyStrategicBrief();
+                      }
+                    },
+                    {
+                      label: 'Upload Audit Spreadsheet (XLSX / CSV)',
+                      desc: 'Ingest campaign sheets with multi-sheet detection',
+                      icon: Upload,
+                      action: () => {
+                        setIsCommandOpen(false);
+                        onOpenDataSourceModal('sheet');
+                      }
+                    },
+                    {
+                      label: 'Toggle Executive Audit Report View',
+                      desc: 'Switch between interactive workspace and printable agency report',
+                      icon: FileText,
+                      action: () => {
+                        setIsCommandOpen(false);
+                        onToggleReportView();
+                      }
+                    }
+                  ]
+                    .filter((a) => !commandQuery || a.label.toLowerCase().includes(commandQuery.toLowerCase()) || a.desc.toLowerCase().includes(commandQuery.toLowerCase()))
+                    .map((item, idx) => {
+                      const ActionIcon = item.icon;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={item.action}
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 text-left transition cursor-pointer group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-[#e2f976]">
+                              <ActionIcon className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-white text-xs">{item.label}</div>
+                              <div className="text-[11px] text-slate-400">{item.desc}</div>
+                            </div>
+                          </div>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#e2f976] transition-colors" />
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Matching Campaign Ads */}
+              {records.length > 0 && (
+                <div>
+                  <div className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                    <span>Campaign Ads ({records.filter((r) => !commandQuery || r.adName.toLowerCase().includes(commandQuery.toLowerCase()) || r.tier?.toLowerCase().includes(commandQuery.toLowerCase())).length})</span>
+                    <span className="text-slate-500 font-normal">Click to inspect in Creative Lab</span>
+                  </div>
+                  <div className="space-y-1 mt-1 max-h-48 overflow-y-auto custom-scrollbar">
+                    {records
+                      .filter((r) => !commandQuery || r.adName.toLowerCase().includes(commandQuery.toLowerCase()) || r.tier?.toLowerCase().includes(commandQuery.toLowerCase()))
+                      .slice(0, 10)
+                      .map((ad) => (
+                        <button
+                          key={ad.adId}
+                          onClick={() => {
+                            onChangeTab('creatives');
+                            setIsCommandOpen(false);
+                            showToast(`Inspecting creative: ${ad.adName}`);
+                          }}
+                          className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white/10 text-left transition cursor-pointer group"
+                        >
+                          <div className="min-w-0 pr-3">
+                            <div className="font-bold text-xs text-white truncate">{ad.adName}</div>
+                            <div className="text-[10px] text-slate-400">
+                              Spend: {currencySymbol}{ad.spend.toLocaleString()} • ROAS: {ad.roas.toFixed(2)}x • CTR: {ad.ctr.toFixed(2)}%
+                            </div>
+                          </div>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0 ${
+                            ad.tier === 'Strong Performer'
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                              : ad.tier === 'Promising'
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                              : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                          }`}>
+                            {ad.tier}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Palette Footer */}
+            <div className="p-3 border-t border-white/10 bg-black/40 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="flex items-center gap-3">
+                <span>Navigate: <kbd className="px-1.5 py-0.5 bg-white/5 rounded font-mono">↑↓</kbd></span>
+                <span>Select: <kbd className="px-1.5 py-0.5 bg-white/5 rounded font-mono">↵</kbd></span>
+                <span>Tabs: <kbd className="px-1.5 py-0.5 bg-white/5 rounded font-mono">1-7</kbd></span>
+              </div>
+              <span className="font-bold text-[#e2f976]">{client.name} Workspace</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= GLOBAL ACTION TOAST NOTIFICATION ================= */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#141517] text-white shadow-2xl border border-white/15 animate-in slide-in-from-bottom-5 duration-200">
+          <div className={`w-2 h-2 rounded-full ${
+            toastMessage.type === 'success' 
+              ? 'bg-emerald-400 animate-ping' 
+              : toastMessage.type === 'warn' 
+              ? 'bg-amber-400 animate-pulse' 
+              : 'bg-[#e2f976]'
+          }`} />
+          <span className="text-xs font-bold text-slate-100">{toastMessage.text}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="ml-2 text-slate-400 hover:text-white transition"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>

@@ -194,6 +194,14 @@ export interface ClientProfile {
   metaAccountId?: string;
   metaAccessToken?: string;
   metaPixelId?: string;
+  googleConnected?: boolean;
+  googleCustomerId?: string;
+  googleDeveloperToken?: string;
+  googleRefreshToken?: string;
+  googleManagerAccountId?: string;
+  clarityConnected?: boolean;
+  clarityProjectId?: string;
+  clarityApiToken?: string;
   lastAnalysisDate: string;
   activeExperimentsCount: number;
   currency: string;
@@ -207,6 +215,35 @@ export interface ClientProfile {
   ctas?: string[];
   audienceInsights?: string;
   periodDatasets?: Record<string, UnifiedAdRecord[]>;
+}
+
+export interface ClarityMetrics {
+  projectId: string;
+  connected: boolean;
+  totalSessions: number;
+  activeUsers: number;
+  rageClicksPercent: number;
+  deadClicksPercent: number;
+  excessiveScrollPercent: number;
+  quickBacksPercent: number;
+  averageScrollDepth: number;
+  deviceSplit: {
+    mobilePercent: number;
+    desktopPercent: number;
+    tabletPercent: number;
+  };
+  topFrictionElements: {
+    element: string;
+    issue: 'Rage Click' | 'Dead Click' | 'High Drop-Off' | 'Form Abandonment';
+    occurrences: number;
+    description: string;
+  }[];
+  pageDropOffs: {
+    url: string;
+    dropOffRate: number;
+    avgTimeSeconds: number;
+  }[];
+  aiCroInsights: string[];
 }
 
 export interface AgencyAuditPeriod {

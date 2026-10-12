@@ -500,7 +500,8 @@ export function parseAgencyAuditWorkbook(workbook: XLSX.WorkBook, clientId: stri
           ? clientProfile.descriptions[r % clientProfile.descriptions.length]
           : '',
         cta: clientProfile.ctas?.[0] || 'Order Now',
-        driveUrl: clientProfile.driveVideoFolderUrl || '',
+        driveUrl: linkVal.startsWith('http') ? linkVal : (clientProfile.driveVideoFolderUrl || ''),
+        creativeUrl: linkVal.startsWith('http') ? linkVal : undefined,
         landingPageUrl: clientProfile.website || ''
       });
     }

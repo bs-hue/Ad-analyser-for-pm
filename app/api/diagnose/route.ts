@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import { ClientProfile, UnifiedAdRecord, AccountDiagnosisResult } from '@/lib/types';
 import { runClaudePerformanceAnalysis } from '@/lib/claudeEngine';
+import { generateLlmCompletion } from '@/lib/llmProvider';
 
 export const maxDuration = 60;
 
@@ -25,10 +25,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No ad records provided for diagnosis.' }, { status: 400 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const hasAiKey = Boolean(
+    process.env.OPENROUTER_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.ANTHROPIC_API_KEY
+  );
 
-  // Fallback if no Gemini API key configured
-  if (!apiKey) {
+  // Fallback if no AI key configured
+  if (!hasAiKey) {
     const diagnosis = await runClaudePerformanceAnalysis(
       client,
       records,
@@ -40,8 +44,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Live Gemini AI Strategic Synthesis
-    const ai = new GoogleGenAI({ apiKey });
 
     // Calculate core metrics deterministically first (Never let AI do basic arithmetic)
     const totalSpend = records.reduce((s, r) => s + (r.spend || 0), 0);
@@ -163,14 +165,21 @@ Return a JSON object strictly matching this structure (no markdown, no code fenc
 }
 `;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt
+    const llmResult = await generateLlmCompletion({
+      prompt,
+      systemPrompt: 'You are an elite Senior Direct Response Performance Marketing Director and CRO Strategist. Return only valid raw JSON.',
+      responseJson: true
     });
 
-    const responseText = response.text || '{}';
-    const cleanJson = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const aiOutput = JSON.parse(cleanJson);
+    let aiOutput: any = {};
+    if (llmResult?.text) {
+      try {
+        const cleanJson = llmResult.text.replace(/```json/gi, '').replace(/```/g, '').trim();
+        aiOutput = JSON.parse(cleanJson);
+      } catch (e) {
+        console.warn('Failed parsing LLM JSON output, using base diagnosis:', e);
+      }
+    }
 
     // Merge AI insights with deterministic funnel and classified tiers
     const baseDiagnosis = await runClaudePerformanceAnalysis(
@@ -193,11 +202,10 @@ Return a JSON object strictly matching this structure (no markdown, no code fenc
     return NextResponse.json({
       success: true,
       diagnosis: finalDiagnosis,
-      source: 'gemini_2.5_flash_live'
+      source: llmResult ? `${llmResult.source}_${llmResult.model}` : 'deterministic_engine'
     });
   } catch (error: any) {
-    console.warn('Gemini live diagnosis fallback to deterministic engine:', error);
-    // Graceful fallback to deterministic engine on any API error or quota issue
+    console.warn('Live diagnosis error, fallback to deterministic engine:', error);
     const diagnosis = await runClaudePerformanceAnalysis(
       client,
       records,

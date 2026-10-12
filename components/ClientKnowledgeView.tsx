@@ -20,17 +20,23 @@ import {
   Trash2,
   FileText,
   FlaskConical,
-  MessageSquare
+  MessageSquare,
+  Folder,
+  FolderCheck,
+  ExternalLink,
+  CheckCircle2
 } from 'lucide-react';
 
 interface ClientKnowledgeViewProps {
   client: ClientProfile;
   onSaveClient: (updated: ClientProfile) => void;
+  selectedSubTabFilter?: string;
 }
 
 export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
   client,
-  onSaveClient
+  onSaveClient,
+  selectedSubTabFilter = 'all'
 }) => {
   const [formData, setFormData] = useState<ClientProfile>(client);
   const [isSaved, setIsSaved] = useState(false);
@@ -75,6 +81,44 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
     }
   };
 
+  const [isTestingDrive, setIsTestingDrive] = useState(false);
+  const [driveTestResult, setDriveTestResult] = useState<{ success: boolean; message: string; id?: string } | null>(null);
+
+  const handleTestDriveConnection = async () => {
+    const targetUrl = formData.driveCreativeFolderUrl || formData.driveVideoFolderUrl;
+    if (!targetUrl) return;
+    setIsTestingDrive(true);
+    setDriveTestResult(null);
+
+    try {
+      const res = await fetch('/api/drive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: targetUrl })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDriveTestResult({
+          success: true,
+          message: data.message,
+          id: data.id
+        });
+      } else {
+        setDriveTestResult({
+          success: false,
+          message: data.error || data.message || 'Could not verify folder access.'
+        });
+      }
+    } catch (err: any) {
+      setDriveTestResult({
+        success: false,
+        message: err.message || 'Network error verifying Google Drive folder.'
+      });
+    } finally {
+      setIsTestingDrive(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSaveClient(formData);
@@ -115,7 +159,8 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
       {/* Profile Form Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Core Business Info */}
-        <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
+        {(selectedSubTabFilter === 'all' || selectedSubTabFilter === 'economics') && (
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
           <h4 className="font-extrabold text-sm text-[#141517] border-b border-[#f4f5f2] pb-3">Business & Offer Foundation</h4>
 
           <div>
@@ -167,10 +212,12 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
               className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
             />
           </div>
-        </div>
+          </div>
+        )}
 
         {/* Brand Tone, Claims & Objections */}
-        <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
+        {(selectedSubTabFilter === 'all' || selectedSubTabFilter === 'dna') && (
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4">
           <h4 className="font-extrabold text-sm text-[#141517] border-b border-[#f4f5f2] pb-3">Positioning & Anti-Hallucination Guardrails</h4>
 
           <div>
@@ -218,10 +265,12 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
               className="w-full bg-rose-50/20 border border-rose-200 rounded-2xl p-3 text-slate-900 font-semibold focus:border-rose-600"
             />
           </div>
-        </div>
+          </div>
+        )}
 
         {/* Client-Specific Meta Ads Manager API Integration */}
-        <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4 md:col-span-2">
+        {(selectedSubTabFilter === 'all' || selectedSubTabFilter === 'past_testing') && (
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4 md:col-span-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4f5f2] gap-2">
             <div>
               <h4 className="font-extrabold text-sm text-[#141517] flex items-center gap-2">
@@ -289,17 +338,6 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
               <span className="text-[10px] text-slate-400 mt-1 block">Threshold used to flag winning vs bleeding ad sets</span>
             </div>
 
-            <div>
-              <label className="font-bold text-slate-700 block mb-1.5">Google Drive Creative Folder URL</label>
-              <input
-                type="url"
-                placeholder="https://drive.google.com/drive/folders/..."
-                value={formData.driveCreativeFolderUrl || ''}
-                onChange={(e) => setFormData({ ...formData, driveCreativeFolderUrl: e.target.value })}
-                className="w-full bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
-              />
-              <span className="text-[10px] text-slate-400 mt-1 block">Folder containing raw video ads for instant 720p teardowns</span>
-            </div>
           </div>
 
           {/* Test Connection Button & Status */}
@@ -330,10 +368,102 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
               Credentials are saved per client in your local agency database.
             </span>
           </div>
-        </div>
+          </div>
+        )}
+
+        {/* Google Drive Video Assets & Public Folder Integration */}
+        {(selectedSubTabFilter === 'all' || selectedSubTabFilter === 'past_testing') && (
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4 md:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4f5f2] gap-2">
+            <div>
+              <h4 className="font-extrabold text-sm text-[#141517] flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                Google Drive Creative Assets & Video Folder (Public Access)
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Set General Access to &quot;Anyone with the link can view&quot;. The AI agent streams videos from this folder for 720p compression and Gemini hook analysis.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-black px-3 py-1 rounded-full ${
+                formData.driveCreativeFolderUrl || formData.driveVideoFolderUrl
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {formData.driveCreativeFolderUrl || formData.driveVideoFolderUrl ? '● Folder Linked' : '○ Not Linked'}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="font-bold text-slate-700 block mb-1.5">Google Drive Folder URL</label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="url"
+                  placeholder="https://drive.google.com/drive/folders/1A2B3C4D5E..."
+                  value={formData.driveCreativeFolderUrl || formData.driveVideoFolderUrl || ''}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    driveCreativeFolderUrl: e.target.value,
+                    driveVideoFolderUrl: e.target.value 
+                  })}
+                  className="flex-1 bg-[#fbfcfb] border border-[#eef0ec] rounded-2xl p-3 text-slate-900 font-semibold focus:border-[#141517]"
+                />
+                <button
+                  type="button"
+                  onClick={handleTestDriveConnection}
+                  disabled={isTestingDrive || (!formData.driveCreativeFolderUrl && !formData.driveVideoFolderUrl)}
+                  className="px-5 py-3 bg-[#141517] hover:bg-black text-[#e2f976] text-xs font-bold rounded-2xl transition disabled:opacity-50 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer shadow-xs"
+                >
+                  {isTestingDrive ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#e2f976]" />
+                      <span>Verifying Folder...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FolderCheck className="w-4 h-4 text-[#e2f976]" />
+                      <span>Test Folder Access</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Must be set to &quot;Anyone with the link can view&quot; in Google Drive sharing settings.
+              </span>
+            </div>
+
+            {driveTestResult && (
+              <div className={`p-3 rounded-2xl text-xs flex items-center justify-between gap-2 border ${
+                driveTestResult.success 
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                  : 'bg-rose-50 text-rose-800 border-rose-200'
+              }`}>
+                <div className="flex items-center gap-2 font-semibold">
+                  {driveTestResult.success ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertOctagon className="w-4 h-4 text-rose-600" />}
+                  <span>{driveTestResult.message}</span>
+                </div>
+                {(formData.driveCreativeFolderUrl || formData.driveVideoFolderUrl) && (
+                  <a
+                    href={formData.driveCreativeFolderUrl || formData.driveVideoFolderUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-[11px] underline font-bold"
+                  >
+                    <span>Open in Drive</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+          </div>
+        )}
 
         {/* Direct-Response Copy Vault (Extracted from Workbook or Entered Manually) */}
-        <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-5 md:col-span-2">
+        {(selectedSubTabFilter === 'all' || selectedSubTabFilter === 'audience') && (
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-5 md:col-span-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4f5f2] gap-2">
             <div>
               <h4 className="font-extrabold text-sm text-[#141517] flex items-center gap-2">
@@ -479,10 +609,12 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        )}
 
         {/* Historical Testing & Learnings Memory */}
-        <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4 md:col-span-2">
+        {(selectedSubTabFilter === 'all' || selectedSubTabFilter === 'past_testing') && (
+          <div className="bg-white border border-[#eef0ec] rounded-[32px] p-6 shadow-2xs space-y-4 md:col-span-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4f5f2] gap-2">
             <div>
               <h4 className="font-extrabold text-sm text-[#141517] flex items-center gap-2">
@@ -560,7 +692,8 @@ export const ClientKnowledgeView: React.FC<ClientKnowledgeViewProps> = ({
               <p className="text-slate-400 text-xs italic">No historical test learnings recorded yet.</p>
             )}
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </form>
   );

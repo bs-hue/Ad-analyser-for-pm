@@ -51,12 +51,34 @@ export const AdGeneratorModal: React.FC<AdGeneratorModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
+    try {
+      const response = await fetch('/api/generate-ad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client,
+          product,
+          offer,
+          audience,
+          winningInsight,
+          platform,
+          format,
+          tone,
+          objective
+        })
+      });
+
+      const data = await response.json();
+      if (data?.result) {
+        setGeneratedResult(data.result);
+      } else {
+        throw new Error('No result returned');
+      }
+    } catch (err) {
+      console.warn('API generation failed, using local template fallback:', err);
       const isAstrology = client.name.toLowerCase().includes('btra') || (client.productService || '').toLowerCase().includes('kundali');
-      
       if (isAstrology) {
         setGeneratedResult({
           hook: `“Career aur marriage mein lagatar rukawat aa rahi hai? Problem aap mein nahi, 7th house aur Rahu-Ketu ke dosh mein ho sakti hai.”`,
@@ -76,7 +98,9 @@ export const AdGeneratorModal: React.FC<AdGeneratorModalProps> = ({
           videoScript: `0-3s: (Frustrated face) "If your Meta CPA doubled this month, stop touching your bidding strategy."\n3-10s: "In 90% of accounts we audit, the problem isn't broad targeting. It's that your first 3 seconds don't call out a specific painful problem."\n10-25s: "Look at this campaign: we restructured the opening angle to directly address ${client.painPoints?.[0] || 'the core pain point'} and CPA dropped in 14 days."\n25-35s: "Click below to get started with ${client.name} today."`
         });
       }
-    }, 800);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const copyToClipboard = (text: string, key: string) => {

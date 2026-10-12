@@ -20,7 +20,7 @@ interface HeaderProps {
   onSelectClient: (clientId: string) => void;
   dateRange: string;
   onChangeDateRange: (range: string) => void;
-  onOpenDataSourceModal: () => void;
+  onOpenDataSourceModal: (tab?: 'manual' | 'sheet' | 'credentials') => void;
   onAnalyze: () => void;
   isAnalyzing: boolean;
   onToggleReportView: () => void;
@@ -82,8 +82,8 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center flex-wrap gap-2.5">
           {/* Data Source Trigger */}
           <button
-            onClick={onOpenDataSourceModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-700 transition"
+            onClick={() => onOpenDataSourceModal()}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-700 transition"
           >
             <Database className="w-3.5 h-3.5 text-blue-600" />
             <span>Data Source</span>
