@@ -1452,21 +1452,26 @@ export const NeoBentoDashboard: React.FC<NeoBentoDashboardProps> = ({
                       {/* Audio Briefing Speech Synthesizer Toggle */}
                       <button
                         onClick={toggleAudioBrief}
-                        className={`text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                        className={`text-xs font-black px-4 py-1.5 rounded-full border transition-all flex items-center gap-2 cursor-pointer shadow-sm ${
                           isPlayingAudio
-                            ? 'bg-[#141517] text-[#e2f976] border-black animate-pulse'
-                            : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200'
+                            ? 'bg-[#141517] text-[#e2f976] border-black ring-2 ring-[#e2f976]/40'
+                            : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-300'
                         }`}
                         title="Listen to Executive Audio Narration"
                       >
                         {isPlayingAudio ? (
                           <>
-                            <VolumeX className="w-3.5 h-3.5 text-[#e2f976]" />
+                            <div className="flex items-end gap-0.5 h-3.5 px-0.5">
+                              <span className="w-1 bg-[#e2f976] rounded-full wave-bar-1" />
+                              <span className="w-1 bg-[#e2f976] rounded-full wave-bar-2" />
+                              <span className="w-1 bg-[#e2f976] rounded-full wave-bar-3" />
+                              <span className="w-1 bg-[#e2f976] rounded-full wave-bar-4" />
+                            </div>
                             <span>Stop Audio Brief</span>
                           </>
                         ) : (
                           <>
-                            <Volume2 className="w-3.5 h-3.5 text-slate-600" />
+                            <Volume2 className="w-3.5 h-3.5 text-slate-700" />
                             <span>Listen Audio Brief</span>
                           </>
                         )}

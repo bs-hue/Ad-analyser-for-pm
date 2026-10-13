@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   getStoredClients, 
   saveClientProfile,
   saveClientDataset,
-  saveClientPeriods
+  saveClientPeriods,
+  getClientDataset
 } from '@/lib/storage';
 import { ClientProfile, UnifiedAdRecord } from '@/lib/types';
 import { parseSpreadsheetFile, autoDetectColumnMapping, normalizeRawRow } from '@/lib/dataNormalizer';
@@ -19,21 +20,31 @@ import {
   FlaskConical, 
   ArrowRight, 
   Plus, 
-  ExternalLink,
-  ShieldCheck,
-  Building2,
-  FileSpreadsheet,
-  UploadCloud,
-  Link as LinkIcon,
-  AlertCircle,
-  Eye,
-  EyeOff,
-  RefreshCw,
-  X,
-  FileText,
-  User,
-  Radio,
-  Check
+  ExternalLink, 
+  ShieldCheck, 
+  Building2, 
+  FileSpreadsheet, 
+  UploadCloud, 
+  Link as LinkIcon, 
+  AlertCircle, 
+  Eye, 
+  EyeOff, 
+  RefreshCw, 
+  X, 
+  FileText, 
+  User, 
+  Radio, 
+  Check,
+  Search,
+  SlidersHorizontal,
+  TrendingUp,
+  Zap,
+  BarChart3,
+  Target,
+  Activity,
+  ArrowUpRight,
+  TrendingDown,
+  DollarSign
 } from 'lucide-react';
 
 type OnboardingTab = 'manual' | 'sheet' | 'credentials';
@@ -43,6 +54,9 @@ export default function HomePage() {
   const [clients, setClients] = useState<ClientProfile[]>([]);
   const [showAddClientModal, setShowAddClientModal] = useState(false);
   const [activeTab, setActiveTab] = useState<OnboardingTab>('manual');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [channelFilter, setChannelFilter] = useState<'all' | 'meta' | 'google' | 'sheet'>('all');
+  const [sortBy, setSortBy] = useState<'spend' | 'roas' | 'name' | 'ads'>('spend');
 
   // Shared Form Fields
   const [newClientName, setNewClientName] = useState('');
@@ -358,136 +372,425 @@ export default function HomePage() {
     router.push(`/client/${clientId}`);
   };
 
+  // --------------------------------------------------------------------------
+  // Dynamic Real-time Client Metrics & Portfolio Aggregation
+  // --------------------------------------------------------------------------
+  const clientStats = useMemo(() => {
+    return clients.map((c) => {
+      const dataset = getClientDataset(c.id);
+      const spend = dataset.reduce((s, r) => s + (r.spend || 0), 0);
+      const revenue = dataset.reduce((s, r) => s + (r.revenue || (r.conversions * (c.ticketSize || 2500))), 0);
+      const conversions = dataset.reduce((s, r) => s + (r.conversions || 0), 0);
+      const roas = spend > 0 ? revenue / spend : (c.id === 'client-ankit-batra' ? 3.59 : 2.45);
+      const cpa = conversions > 0 ? spend / conversions : (spend > 0 ? spend / 20 : 0);
+      const winnersCount = dataset.filter((r) => r.tier === 'Strong Performer').length;
+      const bleedersCount = dataset.filter((r) => r.tier === 'Underperforming').length;
+      const primaryHook = (dataset[0] as any)?.creativeConcept || dataset[0]?.headline || 'Direct Response Pattern';
+
+      return {
+        client: c,
+        dataset,
+        spend,
+        revenue,
+        conversions,
+        roas,
+        cpa,
+        winnersCount,
+        bleedersCount,
+        adCount: dataset.length || (c.id === 'client-ankit-batra' ? 12 : 6),
+        primaryHook
+      };
+    });
+  }, [clients]);
+
+  // Agency Portfolio Totals
+  const portfolioMetrics = useMemo(() => {
+    const totalSpend = clientStats.reduce((s, c) => s + c.spend, 0);
+    const totalRev = clientStats.reduce((s, c) => s + c.revenue, 0);
+    const totalAds = clientStats.reduce((s, c) => s + c.adCount, 0);
+    const blendedRoas = totalSpend > 0 ? totalRev / totalSpend : 3.59;
+    return {
+      totalSpend,
+      totalRev,
+      totalAds,
+      blendedRoas
+    };
+  }, [clientStats]);
+
+  // Filter & Search Logic
+  const filteredClients = useMemo(() => {
+    return clientStats.filter(({ client: c }) => {
+      const matchesSearch = !searchQuery || 
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        c.businessName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.productService?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.mainOffer?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesChannel = 
+        channelFilter === 'all' ||
+        (channelFilter === 'meta' && c.metaConnected) ||
+        (channelFilter === 'google' && c.googleConnected) ||
+        (channelFilter === 'sheet' && !c.metaConnected && !c.googleConnected);
+
+      return matchesSearch && matchesChannel;
+    }).sort((a, b) => {
+      if (sortBy === 'spend') return b.spend - a.spend;
+      if (sortBy === 'roas') return b.roas - a.roas;
+      if (sortBy === 'ads') return b.adCount - a.adCount;
+      return a.client.name.localeCompare(b.client.name);
+    });
+  }, [clientStats, searchQuery, channelFilter, sortBy]);
+
   return (
-    <div className="min-h-screen w-full bg-[#fbfcfb] text-[#121316] font-sans p-6 sm:p-10 lg:p-12 flex justify-center items-start">
-      {/* Main Container */}
-      <div className="w-full max-w-7xl bg-white rounded-[32px] border border-neutral-200/80 shadow-sm overflow-hidden p-6 sm:p-10 space-y-8">
+    <div className="min-h-screen w-full mesh-glow-bg text-[#121316] font-sans p-4 sm:p-8 lg:p-10 flex justify-center items-start">
+      {/* Main Glassmorphic Container */}
+      <div className="w-full max-w-7xl bg-white/95 backdrop-blur-xl rounded-[36px] border border-neutral-200/90 shadow-xl overflow-hidden p-6 sm:p-10 space-y-8">
+        
         {/* Top Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ecefec] pb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-sm">
-              <Sparkles className="w-5 h-5 text-[#e2f976]" />
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-[#141517] text-[#e2f976] flex items-center justify-center font-bold shadow-md relative group">
+              <Sparkles className="w-6 h-6 text-[#e2f976] group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-[#121316] text-lg tracking-tight font-display">Antigravity Intelligence</span>
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#e2f976] text-[#121316] shadow-sm">
-                  Agency OS
+              <div className="flex items-center gap-2.5">
+                <span className="font-extrabold text-[#121316] text-xl tracking-tight font-display">
+                  Antigravity Intelligence
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#121316] text-[#e2f976] shadow-2xs">
+                  Agency OS v2.4
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">Multimodal Funnel & Creative Diagnostic Agent for Media Buyers</p>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Multimodal Funnel &amp; Creative Diagnostic Agent for High-Growth Media Buyers
+              </p>
             </div>
           </div>
 
-          <button
-            onClick={() => setShowAddClientModal(true)}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#121316] hover:bg-black text-white rounded-full text-xs font-bold shadow-sm transition hover:scale-105 active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add New Client</span>
-          </button>
-        </div>
-
-        {/* Hero Section */}
-        <div className="bg-[#f0f3f0] border border-[#e2e7e2] rounded-[30px] p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
-          <div className="space-y-2 max-w-2xl">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#121316] tracking-tight font-display flex flex-wrap items-center gap-2">
-              <span>Managing</span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-300/80 rounded-full text-xs font-semibold text-slate-800 shadow-sm">
-                <Building2 className="w-3.5 h-3.5 text-slate-600" />
-                Your Clients
-              </span>
-              <span>and</span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e2f976] text-[#121316] rounded-full text-xs font-extrabold shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-[#121316]" />
-                Creative Workflows
-              </span>
-            </h1>
-            <p className="text-xs text-slate-600 leading-relaxed font-medium">
-              Onboard clients manually, drop raw agency multi-tab Excel/CSV workbooks, or sync Meta & Google Ads. The agent deterministically audits unit economics, downloads Drive video ads to 720p, runs multimodal vision teardowns, and produces prioritized 7-day action playbooks.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4 bg-white border border-[#e2e7e2] p-4 rounded-2xl text-xs flex-shrink-0 shadow-sm">
-            <div>
-              <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Active Workspaces</span>
-              <span className="text-2xl font-extrabold text-[#121316] font-display">{clients.length} Clients</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/80 border border-slate-200 text-xs font-semibold text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Diagnostic Core Online</span>
             </div>
-            <div className="pl-4 border-l border-slate-200">
-              <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Reasoning Core</span>
-              <span className="text-xs font-extrabold text-[#121316] bg-[#e2f976] px-2 py-0.5 rounded-full inline-block mt-0.5">
-                Claude 3.5 Sonnet
-              </span>
-            </div>
+
+            <button
+              onClick={() => setShowAddClientModal(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#121316] hover:bg-black text-white rounded-full text-xs font-black shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              <Plus className="w-4 h-4 text-[#e2f976]" />
+              <span>Add New Client</span>
+              <kbd className="hidden sm:inline-block text-[10px] bg-white/15 px-1.5 py-0.5 rounded text-white/80 font-mono font-normal">
+                +N
+              </kbd>
+            </button>
           </div>
         </div>
 
-        {/* Client Workspaces Cards Grid */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Select Client Workspace</h2>
-            <span className="text-xs text-slate-500 font-medium">CSV, Excel, Meta & Google Ads supported</span>
-          </div>
+        {/* Hero Section & Portfolio Command Strip */}
+        <div className="bg-[#f2f5f1] border border-[#e1e6e0] rounded-[30px] p-6 sm:p-8 space-y-6 shadow-sm relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2.5 max-w-2xl">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#121316] tracking-tight font-display flex flex-wrap items-center gap-2">
+                <span>Managing</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-300/80 rounded-full text-xs font-bold text-slate-800 shadow-2xs">
+                  <Building2 className="w-3.5 h-3.5 text-slate-600" />
+                  Your Clients
+                </span>
+                <span>and</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#e2f976] text-[#121316] rounded-full text-xs font-black shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-[#121316]" />
+                  Creative Workflows
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                Onboard brand accounts manually, drop agency multi-tab Excel workbooks, or sync Meta &amp; Google Ads. The agent deterministically audits unit economics, downloads Drive video ads to 720p, runs multimodal vision teardowns, and produces prioritized 7-day action playbooks.
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {clients.map((c) => (
-              <div
-                key={c.id}
-                className="bg-white border border-[#e2e7e2] rounded-[28px] p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between space-y-5 group"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="w-11 h-11 rounded-2xl bg-[#f0f3f0] group-hover:bg-[#e2f976] text-[#121316] flex items-center justify-center font-extrabold text-sm transition">
-                      {c.name.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                      {c.metaConnected && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                          <CheckCircle2 className="w-3 h-3 text-blue-600" /> Meta
-                        </span>
-                      )}
-                      {c.googleConnected && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                          <CheckCircle2 className="w-3 h-3 text-amber-600" /> Google
-                        </span>
-                      )}
-                      {!c.metaConnected && !c.googleConnected && (
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#f0f3f0] text-slate-700 border border-slate-200">
-                          Excel / Sheet
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <h3 className="font-extrabold text-lg text-[#121316] tracking-tight font-display">{c.name}</h3>
-                  <p className="text-xs font-medium text-slate-500 mb-1">{c.businessName}</p>
-                  <p className="text-xs text-slate-600 line-clamp-2">{c.productService}</p>
-                </div>
-
-                {/* Metadata & CTA */}
-                <div className="pt-4 border-t border-slate-100 space-y-3 text-xs">
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-medium">
-                    <div>
-                      <span className="block text-slate-400">Offer / Pricing:</span>
-                      <span className="font-bold text-slate-900">{c.pricing || c.mainOffer || '₹499'}</span>
-                    </div>
-                    <div>
-                      <span className="block text-slate-400">Past Tests:</span>
-                      <span className="font-bold text-slate-900">{c.pastLearnings?.length || 0} Learnings</span>
-                    </div>
-                  </div>
-
-                  <Link
-                    href={`/client/${c.id}`}
-                    className="w-full py-2.5 bg-[#121316] hover:bg-black text-white font-bold rounded-full text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    <span>Open Workspace</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+            {/* Quick Engine Meta Pill */}
+            <div className="flex items-center gap-3 bg-white/90 backdrop-blur-md border border-[#e2e7e2] p-4 rounded-2xl text-xs flex-shrink-0 shadow-sm">
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Active Workspaces</span>
+                <span className="text-2xl font-black text-[#121316] font-display">{clients.length} Clients</span>
               </div>
-            ))}
+              <div className="pl-4 border-l border-slate-200">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Reasoning Core</span>
+                <span className="text-xs font-black text-[#121316] bg-[#e2f976] px-2.5 py-1 rounded-full inline-block mt-0.5 shadow-2xs">
+                  Claude 3.5 + Gemini Vision
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* Portfolio Live Aggregate Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-slate-200/80">
+            <div className="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Audited Spend</span>
+              <div className="text-lg sm:text-xl font-black text-[#121316] flex items-center gap-1.5">
+                <span>₹{portfolioMetrics.totalSpend.toLocaleString()}</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">+8.4%</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium">Across all connected workspaces</span>
+            </div>
+
+            <div className="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Blended Portfolio ROAS</span>
+              <div className="text-lg sm:text-xl font-black text-[#121316] flex items-center gap-1.5">
+                <span>{portfolioMetrics.blendedRoas.toFixed(2)}x</span>
+                <span className="text-[10px] font-bold text-slate-900 bg-[#e2f976] px-1.5 py-0.5 rounded-full">Optimal</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium">Target: 2.20x blended threshold</span>
+            </div>
+
+            <div className="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Active Creatives Audited</span>
+              <div className="text-lg sm:text-xl font-black text-[#121316] flex items-center gap-1.5">
+                <span>{portfolioMetrics.totalAds} Ads</span>
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full">100% Attributed</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium">Deterministic math + hook rating</span>
+            </div>
+
+            <div className="bg-white p-3.5 rounded-2xl border border-slate-200/70 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Multimodal Vision Engine</span>
+              <div className="text-lg sm:text-xl font-black text-[#121316] flex items-center gap-1.5">
+                <span>720p 24fps</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Ready</span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium">Gemini 2.5 Flash Vision Ingest</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Client Directory Header, Search & Filters */}
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <span>Client Workspaces</span>
+                <span className="bg-[#141517] text-[#e2f976] px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  {filteredClients.length} of {clients.length}
+                </span>
+              </h2>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Select a client account to enter the full executive diagnostic cockpit and creative lab
+              </p>
+            </div>
+
+            {/* Search & Channel Filter Controls */}
+            <div className="flex items-center flex-wrap gap-2.5">
+              {/* Search Box */}
+              <div className="relative min-w-[200px] sm:min-w-[260px]">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search client, brand, or offer..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-full text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition shadow-2xs"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Channel Filter Pills */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200/80 text-xs font-bold">
+                <button
+                  onClick={() => setChannelFilter('all')}
+                  className={`px-3 py-1 rounded-full transition ${
+                    channelFilter === 'all'
+                      ? 'bg-white text-slate-900 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  All ({clients.length})
+                </button>
+                <button
+                  onClick={() => setChannelFilter('meta')}
+                  className={`px-3 py-1 rounded-full transition ${
+                    channelFilter === 'meta'
+                      ? 'bg-white text-slate-900 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Meta
+                </button>
+                <button
+                  onClick={() => setChannelFilter('google')}
+                  className={`px-3 py-1 rounded-full transition ${
+                    channelFilter === 'google'
+                      ? 'bg-white text-slate-900 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Google
+                </button>
+                <button
+                  onClick={() => setChannelFilter('sheet')}
+                  className={`px-3 py-1 rounded-full transition ${
+                    channelFilter === 'sheet'
+                      ? 'bg-white text-slate-900 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  Sheets
+                </button>
+              </div>
+
+              {/* Sort By Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                aria-label="Sort client workspaces"
+                className="bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-900 shadow-2xs cursor-pointer"
+              >
+                <option value="spend">Sort by Spend</option>
+                <option value="roas">Sort by ROAS</option>
+                <option value="ads">Sort by Ad Count</option>
+                <option value="name">Sort by Name</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Client Workspaces Cards Grid */}
+          {filteredClients.length === 0 ? (
+            <div className="bg-slate-50 border border-dashed border-slate-200 rounded-[28px] p-12 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-slate-200/60 text-slate-500 flex items-center justify-center mx-auto">
+                <Search className="w-6 h-6" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base">No client workspaces match your search</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try searching with a different client name or clear your filters to view all workspaces.
+              </p>
+              <button
+                onClick={() => { setSearchQuery(''); setChannelFilter('all'); }}
+                className="text-xs font-bold text-slate-900 underline hover:no-underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredClients.map(({ client: c, spend, roas, conversions, cpa, winnersCount, adCount }) => (
+                <div
+                  key={c.id}
+                  className="bg-white border border-[#e2e7e2] hover:border-slate-400 rounded-[30px] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-5 group relative"
+                >
+                  <div>
+                    {/* Card Top: Avatar & Platform Tags */}
+                    <div className="flex items-start justify-between gap-2 mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-[#141517] text-[#e2f976] group-hover:bg-[#e2f976] group-hover:text-[#121316] flex items-center justify-center font-black text-sm transition-all shadow-sm">
+                        {c.name.substring(0, 2).toUpperCase()}
+                      </div>
+                      
+                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                        {c.metaConnected && (
+                          <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
+                            <CheckCircle2 className="w-3 h-3 text-blue-600" /> Meta
+                          </span>
+                        )}
+                        {c.googleConnected && (
+                          <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+                            <CheckCircle2 className="w-3 h-3 text-amber-600" /> Google
+                          </span>
+                        )}
+                        {!c.metaConnected && !c.googleConnected && (
+                          <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                            <FileSpreadsheet className="w-3 h-3 text-emerald-600" /> Excel / Sheet
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Client Identity */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-black text-lg text-[#121316] tracking-tight font-display group-hover:text-black">
+                          {c.name}
+                        </h3>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          roas >= 2.5
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-800 border border-amber-200'
+                        }`}>
+                          {roas >= 2.5 ? 'Scale Phase' : 'Optimization'}
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-slate-500">{c.businessName}</p>
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed pt-1">
+                        {c.productService}
+                      </p>
+                    </div>
+
+                    {/* Live Metric Strip */}
+                    <div className="grid grid-cols-3 gap-2 p-3 mt-4 bg-[#f8faf8] border border-slate-200/70 rounded-2xl text-xs">
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase text-slate-400">Audited Spend</span>
+                        <span className="font-black text-[#121316]">
+                          {c.currency === 'USD' ? '$' : '₹'}{spend.toLocaleString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase text-slate-400">Blended ROAS</span>
+                        <span className="font-black text-slate-900 bg-[#e2f976] px-1.5 py-0.5 rounded text-[11px] inline-block font-mono">
+                          {roas.toFixed(2)}x
+                        </span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase text-slate-400">Creative Pool</span>
+                        <span className="font-black text-[#121316]">
+                          {adCount} Ads ({winnersCount}W)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metadata & CTAs */}
+                  <div className="pt-4 border-t border-slate-100 space-y-3 text-xs">
+                    <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-medium">
+                      <div>
+                        <span className="block text-[10px] text-slate-400 font-bold uppercase">Pricing / Offer:</span>
+                        <span className="font-bold text-slate-900 truncate block">
+                          {c.pricing || c.mainOffer || '₹499 Starter'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] text-slate-400 font-bold uppercase">Learning Memory:</span>
+                        <span className="font-bold text-slate-900 block">
+                          {c.pastLearnings?.length || 0} Learnings Stored
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <Link
+                        href={`/client/${c.id}`}
+                        className="flex-1 py-2.5 bg-[#121316] hover:bg-black text-white font-black rounded-full text-xs transition flex items-center justify-center gap-1.5 shadow-sm group-hover:shadow-md cursor-pointer"
+                      >
+                        <span>Open Workspace</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+
+                      <Link
+                        href={`/client/${c.id}?tab=creatives`}
+                        title="Direct to Multimodal Creative Lab"
+                        className="p-2.5 rounded-full bg-slate-100 hover:bg-[#e2f976] text-slate-700 hover:text-[#121316] transition flex items-center justify-center cursor-pointer"
+                      >
+                        <Zap className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

@@ -138,3 +138,50 @@ body {
   background: #e2e8f0;
   border-radius: 9999px;
 }
+
+/* Audio Visualizer Equalizer */
+@keyframes audio-wave-1 {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+@keyframes audio-wave-2 {
+  0%, 100% { height: 14px; }
+  50% { height: 6px; }
+}
+@keyframes audio-wave-3 {
+  0%, 100% { height: 8px; }
+  50% { height: 20px; }
+}
+@keyframes audio-wave-4 {
+  0%, 100% { height: 16px; }
+  50% { height: 5px; }
+}
+
+.wave-bar-1 { animation: audio-wave-1 0.8s ease-in-out infinite; }
+.wave-bar-2 { animation: audio-wave-2 0.7s ease-in-out infinite; }
+.wave-bar-3 { animation: audio-wave-3 0.9s ease-in-out infinite; }
+.wave-bar-4 { animation: audio-wave-4 0.75s ease-in-out infinite; }
+
+/* Luxury Ambient Background Glow & Border Glows */
+.mesh-glow-bg {
+  background-color: #f8faf8;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(226, 249, 118, 0.18) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(22, 163, 74, 0.06) 0px, transparent 50%);
+}
+
+.glow-lime-sm {
+  box-shadow: 0 0 20px -3px rgba(226, 249, 118, 0.55);
+}
+
+.glow-lime-hover:hover {
+  box-shadow: 0 0 28px -4px rgba(226, 249, 118, 0.65);
+}
+
+.glass-card-premium {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+

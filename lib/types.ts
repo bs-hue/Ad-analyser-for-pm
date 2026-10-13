@@ -180,6 +180,7 @@ export interface ClientProfile {
   productService: string;
   mainOffer: string;
   pricing?: string;
+  ticketSize?: number;
   targetAudience: string;
   geography: string;
   usp: string;

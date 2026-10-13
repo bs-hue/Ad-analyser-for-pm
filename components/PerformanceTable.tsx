@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { UnifiedAdRecord, PerformanceTier, CreativeIntelligence } from '@/lib/types';
 import { 
   CheckCircle2, 
@@ -18,7 +18,12 @@ import {
   Sparkles,
   UploadCloud,
   Film,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Search,
+  Download,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 interface PerformanceTableProps {
@@ -49,6 +54,9 @@ export const PerformanceTable: React.FC<PerformanceTableProps> = ({
   };
 
   const [selectedCampaign, setSelectedCampaign] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortField, setSortField] = useState<'spend' | 'ctr' | 'cpc' | 'conversions' | 'cpa' | 'roas' | 'adName'>('spend');
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [activeDrilldownAd, setActiveDrilldownAd] = useState<UnifiedAdRecord | null>(null);
   const [customDriveUrl, setCustomDriveUrl] = useState<string>('');
   const [localAttachedMedia, setLocalAttachedMedia] = useState<Record<string, { url: string; type: 'video' | 'image'; name: string }>>({});
@@ -68,11 +76,60 @@ export const PerformanceTable: React.FC<PerformanceTableProps> = ({
 
   const campaigns = Array.from(new Set(records.map((r) => r.campaign || 'General')));
 
-  const filteredRecords = records.filter((r) => {
-    if (selectedTier !== 'ALL' && r.tier !== selectedTier) return false;
-    if (selectedCampaign !== 'ALL' && r.campaign !== selectedCampaign) return false;
-    return true;
-  });
+  const handleSort = (field: 'spend' | 'ctr' | 'cpc' | 'conversions' | 'cpa' | 'roas' | 'adName') => {
+    if (sortField === field) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortField(field);
+      setSortAsc(false);
+    }
+  };
+
+  const exportToCsv = () => {
+    const headers = ['Ad ID', 'Ad Name', 'Campaign', 'Classification', 'Spend', 'Link CTR (%)', 'CPC', 'Conversions', 'CPA', 'ROAS'];
+    const rows = sortedAndFilteredRecords.map((r) => [
+      r.adId,
+      `"${r.adName.replace(/"/g, '""')}"`,
+      `"${(r.campaign || 'General').replace(/"/g, '""')}"`,
+      r.tier || 'Average',
+      r.spend,
+      r.ctr.toFixed(2),
+      r.cpc.toFixed(2),
+      r.conversions,
+      r.cpa.toFixed(2),
+      r.roas.toFixed(2)
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `ad_performance_intelligence_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const sortedAndFilteredRecords = useMemo(() => {
+    return records.filter((r) => {
+      if (selectedTier !== 'ALL' && r.tier !== selectedTier) return false;
+      if (selectedCampaign !== 'ALL' && r.campaign !== selectedCampaign) return false;
+      if (searchQuery && !r.adName.toLowerCase().includes(searchQuery.toLowerCase()) && !r.adId.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      return true;
+    }).sort((a, b) => {
+      let valA: any = a[sortField];
+      let valB: any = b[sortField];
+      if (sortField === 'adName') {
+        valA = a.adName.toLowerCase();
+        valB = b.adName.toLowerCase();
+        return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      }
+      return sortAsc ? (valA || 0) - (valB || 0) : (valB || 0) - (valA || 0);
+    });
+  }, [records, selectedTier, selectedCampaign, searchQuery, sortField, sortAsc]);
+
+  const filteredRecords = sortedAndFilteredRecords;
 
   const getTierBadge = (tier?: PerformanceTier) => {
     switch (tier) {
@@ -133,19 +190,40 @@ export const PerformanceTable: React.FC<PerformanceTableProps> = ({
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex items-center flex-wrap gap-2 text-xs">
-          <div className="flex items-center gap-1.5 bg-[#f4f5f2] border border-[#eef0ec] px-4 py-2 rounded-full shadow-2xs">
+        {/* Filters, Search & Export */}
+        <div className="flex items-center flex-wrap gap-2.5 text-xs">
+          {/* Quick Ad Search */}
+          <div className="relative min-w-[180px] sm:min-w-[220px]">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search ad name or ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-7 py-1.5 bg-[#f4f5f2] hover:bg-white focus:bg-white border border-[#eef0ec] rounded-full text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition shadow-2xs"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-[#f4f5f2] border border-[#eef0ec] px-3.5 py-1.5 rounded-full shadow-2xs">
             <span className="font-extrabold text-[#141517] text-xs">
               {selectedTier === 'ALL' ? `All Tiers (${filteredRecords.length})` : `${selectedTier} (${filteredRecords.length})`}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#f4f5f2] border border-[#eef0ec] px-4 py-2 rounded-full shadow-2xs">
+          <div className="flex items-center gap-1.5 bg-[#f4f5f2] border border-[#eef0ec] px-3.5 py-1.5 rounded-full shadow-2xs">
             <select
               value={selectedCampaign}
               onChange={(e) => setSelectedCampaign(e.target.value)}
-              className="bg-transparent font-bold text-[#141517] focus:outline-none cursor-pointer max-w-[180px] truncate"
+              aria-label="Filter by Campaign"
+              className="bg-transparent font-bold text-[#141517] focus:outline-none cursor-pointer max-w-[160px] truncate"
             >
               <option value="ALL">All Campaigns</option>
               {campaigns.map((c) => (
@@ -155,6 +233,16 @@ export const PerformanceTable: React.FC<PerformanceTableProps> = ({
               ))}
             </select>
           </div>
+
+          {/* Export to CSV CTA */}
+          <button
+            onClick={exportToCsv}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#141517] hover:bg-black text-white rounded-full font-bold shadow-2xs transition hover:scale-105 active:scale-95 cursor-pointer"
+            title="Export filtered records as CSV"
+          >
+            <Download className="w-3.5 h-3.5 text-[#e2f976]" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 
@@ -162,15 +250,71 @@ export const PerformanceTable: React.FC<PerformanceTableProps> = ({
       <div className="overflow-x-auto bg-white rounded-[28px] border border-[#eef0ec] p-2">
         <table className="w-full text-left saas-table">
           <thead>
-            <tr className="border-b border-neutral-100 text-[11px] font-black uppercase tracking-wider text-neutral-400">
-              <th className="py-3 px-4">Ad Name / Creative</th>
+            <tr className="border-b border-neutral-100 text-[11px] font-black uppercase tracking-wider text-neutral-400 select-none">
+              <th 
+                onClick={() => handleSort('adName')}
+                className="py-3 px-4 cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center gap-1">
+                  <span>Ad Name / Creative</span>
+                  {sortField === 'adName' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
               <th className="py-3 px-3">Classification</th>
-              <th className="py-3 px-3 text-right">Spend</th>
-              <th className="py-3 px-3 text-right">Link CTR</th>
-              <th className="py-3 px-3 text-right">CPC</th>
-              <th className="py-3 px-3 text-right">Conversions</th>
-              <th className="py-3 px-3 text-right">CPA / CPL</th>
-              <th className="py-3 px-3 text-right">ROAS</th>
+              <th 
+                onClick={() => handleSort('spend')}
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>Spend</span>
+                  {sortField === 'spend' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('ctr')}
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>Link CTR</span>
+                  {sortField === 'ctr' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('cpc')}
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>CPC</span>
+                  {sortField === 'cpc' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('conversions')}
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>Conversions</span>
+                  {sortField === 'conversions' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('cpa')}
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>CPA / CPL</span>
+                  {sortField === 'cpa' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
+              <th 
+                onClick={() => handleSort('roas')}
+                className="py-3 px-3 text-right cursor-pointer hover:text-slate-900 transition"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  <span>ROAS</span>
+                  {sortField === 'roas' && (sortAsc ? <ArrowUp className="w-3 h-3 text-slate-900" /> : <ArrowDown className="w-3 h-3 text-slate-900" />)}
+                </div>
+              </th>
               <th className="py-3 px-3 text-center">Action</th>
             </tr>
           </thead>
